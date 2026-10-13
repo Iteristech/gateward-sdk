@@ -24,7 +24,7 @@ Todavía **no está publicado en npm** (falta la org `gateward` y el `NPM_TOKEN`
 Hoy se consume desde el repo clonado al lado, como hacen el dashboard y el demo:
 
 ```bash
-git clone https://github.com/dPeluChe/gateward-sdk ../gateward-sdk
+git clone https://github.com/Iteristech/gateward-sdk ../gateward-sdk
 pnpm -C ../gateward-sdk install && pnpm -C ../gateward-sdk build   # genera dist/
 # en tu package.json: "@gateward/sdk": "file:../gateward-sdk"
 ```
