@@ -7,7 +7,7 @@
 
 ---
 
-## Estado `updated: 2026-09-05`
+## Estado `updated: 2026-10-14`
 
 Superficie de cliente/integrador **completa contra el contrato** del Core (45 paths,
 regenerado en #23): auth, perfil propio, password, email, borrado de cuenta, sesiones,
@@ -15,7 +15,7 @@ roles de app, config pública con guarda de environment, eventos y verificación
 Lo no cubierto es admin/control-plane, que por diseño vive en el dashboard.
 
 `main`: PRs #9–#23, 129 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
-en Node 20 y 22 (runners de GitHub: el repo es público, los minutos son gratis).
+en Node 20 y 22 (runners Strongback `sbk-small`; los PRs de forks caen a `ubuntu-latest`).
 
 El demo (`gateward-sdk-demo` #2) ejercita **toda** la superficie, incluida la guarda de
 environment, el cambio de email en dos pasos y el borrado de cuenta.

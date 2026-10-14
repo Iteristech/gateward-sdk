@@ -484,6 +484,13 @@ pnpm gen:types
 - Endpoints con `AppContext` requieren el header **`X-Gateward-App-Id`**.
 - `POST /v1/events` (sendEvent) exige scope `events:write` y `event_type` namespaced.
 
+## Cómo se trabaja
+
+Rama por cambio, PR a `main` con squash-merge; `main` no despliega. Se promueve con PR
+`main` a `stg` y luego a `prod`, siempre con merge commit. CI corre en Strongback
+(`[self-hosted, sbk-small]`; los PRs de forks usan `ubuntu-latest`), sin caches y con
+`timeout-minutes` y `concurrency` en cada workflow. Un PR no se mergea en rojo.
+
 ## Documentación
 
 Estructura declarada en [`.doctos.yml`](./.doctos.yml), índice en [docs/README.md](./docs/README.md).
