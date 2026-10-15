@@ -330,6 +330,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/apps/{app_id}/email-providers/{priority}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["receive_provider_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/apps/{app_id}/email-providers/{priority}/test": {
         parameters: {
             query?: never;
@@ -1747,6 +1763,8 @@ export interface components {
             app_id: string;
             from_address: string;
             from_name?: string | null;
+            /** @description Whether a secret is stored for verifying bounce and complaint callbacks. */
+            has_inbound_secret: boolean;
             /**
              * @description Whether a credential is stored. The credential itself is never
              *     returned, in any shape — not masked, not truncated.
@@ -1829,6 +1847,15 @@ export interface components {
             template: string;
             /** @enum {string} */
             type: "autoreply";
+        } | {
+            consent_field?: string | null;
+            list: string;
+            /** @enum {string} */
+            type: "subscribe";
+        } | {
+            consent_field?: string | null;
+            /** @enum {string} */
+            type: "waitlist";
         };
         /**
          * @description One input of a form. The Core validates against this; the SDK hands it to
@@ -2179,6 +2206,12 @@ export interface components {
              *     `subject`, `text`, `kind`, `token`). Any 2xx counts as delivered.
              */
             http_url?: string | null;
+            /**
+             * @description The secret the provider signs bounce and complaint callbacks with (the
+             *     Svix `whsec_...` signing secret for Resend; any string for `http`).
+             *     Write-only. Omit to keep the stored one.
+             */
+            inbound_secret?: string | null;
             /** @description `smtp`, `resend` or `http`. */
             kind: string;
             /** @description `transactional` (auth mail), `broadcast` or `any` (default). */
@@ -3556,6 +3589,55 @@ export interface operations {
             };
             /** @description No provider at that position */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    receive_provider_event: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position of the provider that sends the callback */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        /** @description The provider's own payload: Resend (Svix-signed) or, for the http kind, `{type, email, permanent}` signed in `X-Gateward-Signature` */
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description Verified. Hard bounces and complaints suppress the address; anything else is acknowledged and ignored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad or missing signature, or no inbound secret stored for this provider */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such provider, or one that cannot call back (smtp) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

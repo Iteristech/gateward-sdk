@@ -9,7 +9,7 @@
 
 ## Estado `updated: 2026-10-15`
 
-Superficie de cliente/integrador **completa contra el contrato** del Core (78 paths,
+Superficie de cliente/integrador **completa contra el contrato** del Core (79 paths,
 regenerado en octubre): auth, perfil propio, password, email, borrado de cuenta, sesiones,
 roles de app, config pública con guarda de environment, eventos y verificación de JWT.
 Lo no cubierto es admin/control-plane, que por diseño vive en el dashboard.
