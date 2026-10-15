@@ -391,6 +391,11 @@ mismas reglas y manda.
 
 ## Política de password y alta
 
+> **Propuesto, no disponible:** registro por invitación, lista de espera y listas de correo
+> (`registration_mode`, `inviteToken`, `joinWaitlist`, `subscribe`). Hoy el registro es siempre
+> abierto. Diseño en el [doc del Core](https://github.com/Iteristech/gateward-core/blob/main/docs/FEATURES/ACCESS_AND_NOTIFICATIONS.md);
+> tarea `ACCESS-SDK-001` en [TASK_TODO.md](./docs/TASK_TODO.md).
+
 Cada app define su propia política (`password_policy` en el `AppResponse`), así
 que el Core rechaza con mensajes específicos — `password must contain digits
 only`, `...at least one uppercase letter`, `...at most 4 characters` — en vez
