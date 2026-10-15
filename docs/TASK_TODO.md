@@ -75,14 +75,15 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 
 ## Backlog
 
-### ACCESS-SDK-001: Registro por invitación, lista de espera y listas de correo `added: 2026-10-15`
-- [ ] Bloqueado por el Core (`ACCESS-001`, `WAITLIST-001`, `NOTIF-001`, `LIST-001`). Diseño y
+### ACCESS-SDK-001: Invitación, lista de espera, listas de correo y formularios `added: 2026-10-15`
+- [ ] Bloqueado por el Core (`ACCESS-001`, `WAITLIST-001`, `NOTIF-001`, `LIST-001`, `FORMS-001`). Diseño y
   superficie propuesta en el doc `ACCESS_AND_NOTIFICATIONS.md` del Core, sección "Superficie en el SDK".
 - [ ] Navegador: `registration_mode` en la config de la app, `register({ inviteToken })`,
-  `joinWaitlist`, `confirmWaitlist`, `subscribe`, `unsubscribe`, `listSubscriptions`.
+  `joinWaitlist`, `confirmWaitlist`, `subscribe`, `unsubscribe`, `listSubscriptions`, `getForm` y `submitForm`.
 - [ ] Backend (`/server`): `createInvitations`, `revokeInvitation`, `releaseWaitlist`,
-  `sendNotification`, `broadcast`.
-- [ ] Hooks de React al final, cuando la superficie base esté probada en el demo.
+  `sendNotification`, `broadcast`, `listSubmissions`, `updateSubmission`.
+- [ ] **Sin UI**: el SDK solo transmite y devuelve datos y estados; la app dibuja sus formularios. Los campos y acciones de un formulario se configuran en Gateward, no en el SDK.
+- [ ] Hooks de React (solo estado de la petición, sin JSX) al final, cuando la superficie base esté probada en el demo.
 - [ ] Regenerar `openapi.json` con `pnpm gen:contract` cuando el Core lo publique.
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`

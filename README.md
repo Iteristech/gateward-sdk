@@ -391,8 +391,9 @@ mismas reglas y manda.
 
 ## Política de password y alta
 
-> **Propuesto, no disponible:** registro por invitación, lista de espera y listas de correo
-> (`registration_mode`, `inviteToken`, `joinWaitlist`, `subscribe`). Hoy el registro es siempre
+> **Propuesto, no disponible:** registro por invitación, lista de espera, listas de correo y
+> formularios de contacto (`registration_mode`, `inviteToken`, `joinWaitlist`, `subscribe`,
+> `submitForm`), siempre sin UI: el SDK solo comunica. Hoy el registro es siempre
 > abierto. Diseño en el [doc del Core](https://github.com/Iteristech/gateward-core/blob/main/docs/FEATURES/ACCESS_AND_NOTIFICATIONS.md);
 > tarea `ACCESS-SDK-001` en [TASK_TODO.md](./docs/TASK_TODO.md).
 
