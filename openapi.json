@@ -1352,6 +1352,64 @@
         ]
       }
     },
+    "/v1/apps/{app_id}/email-providers/{priority}/events": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "receive_provider_event",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position of the provider that sends the callback",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The provider's own payload: Resend (Svix-signed) or, for the http kind, `{type, email, permanent}` signed in `X-Gateward-Signature`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Verified. Hard bounces and complaints suppress the address; anything else is acknowledged and ignored"
+          },
+          "401": {
+            "description": "Bad or missing signature, or no inbound secret stored for this provider"
+          },
+          "404": {
+            "description": "No such provider, or one that cannot call back (smtp)"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
     "/v1/apps/{app_id}/email-providers/{priority}/test": {
       "post": {
         "tags": [
@@ -6670,6 +6728,7 @@
           "purpose",
           "from_address",
           "has_secret",
+          "has_inbound_secret",
           "status",
           "updated_at"
         ],
@@ -6686,6 +6745,10 @@
               "string",
               "null"
             ]
+          },
+          "has_inbound_secret": {
+            "type": "boolean",
+            "description": "Whether a secret is stored for verifying bounce and complaint callbacks."
           },
           "has_secret": {
             "type": "boolean",
@@ -6923,6 +6986,52 @@
                 "type": "string",
                 "enum": [
                   "autoreply"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Subscribe the submitter to a mailing list. With `consent_field`, only\nwhen that checkbox came ticked: ticking is the consent.",
+            "required": [
+              "list",
+              "type"
+            ],
+            "properties": {
+              "consent_field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "list": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "subscribe"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Put the submitter on the waiting list (the app must run one). With\n`consent_field`, only when that checkbox came ticked.",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "consent_field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "waitlist"
                 ]
               }
             }
@@ -8005,6 +8114,13 @@
               "null"
             ],
             "description": "`http` only: where the Core POSTs each message as JSON (`from`, `to`,\n`subject`, `text`, `kind`, `token`). Any 2xx counts as delivered."
+          },
+          "inbound_secret": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The secret the provider signs bounce and complaint callbacks with (the\nSvix `whsec_...` signing secret for Resend; any string for `http`).\nWrite-only. Omit to keep the stored one."
           },
           "kind": {
             "type": "string",

@@ -514,6 +514,23 @@ try {
 `anonymous: true` para enviarlo sin ella. Un envío que el antispam retiene recibe la misma
 respuesta que uno bueno.
 
+### Hooks de React
+
+Con `@gateward/sdk/react` (dentro de `<GatewardProvider>`), guardan el estado de la petición y no
+devuelven JSX. Cada acción resuelve `true` o `false` en lugar de lanzar:
+
+```tsx
+const { join, status, error } = useWaitlist();
+const { subscribe } = useSubscription("novedades");
+const { lists, set } = useSubscriptions();          // preferencias del usuario con sesión
+const { form, submit, fieldErrors, loading } = useForm("contacto");
+
+if (await submit({ email, message })) showThanks();  // fieldErrors nombra todos los campos
+```
+
+`status` es `idle | pending | done | error`; `useForm` carga la definición y manda por ti la hora
+a la que se mostró el formulario.
+
 ### Desde tu backend (API key)
 
 `GatewardServer` suma, con el scope que corresponde en la key y solo sobre su propia app:

@@ -11,6 +11,8 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
 
 ### Added
 
+- **Hooks de React** `useWaitlist`, `useSubscription`, `useSubscriptions` y `useForm` en
+  `@gateward/sdk/react`: estado de la petición y errores por campo, sin JSX.
 - **Acceso controlado, listas y formularios** (headless): `register` con `inviteToken`,
   `joinWaitlist`/`confirmWaitlist`, `subscribeToList` y compañía, `getForm`/`submitForm`,
   `GatewardError.fieldErrors`, y en `GatewardServer` invitaciones, lista de espera,
