@@ -391,11 +391,8 @@ mismas reglas y manda.
 
 ## Política de password y alta
 
-> **Propuesto, no disponible:** registro por invitación, lista de espera, listas de correo y
-> formularios de contacto (`registration_mode`, `inviteToken`, `joinWaitlist`, `subscribe`,
-> `submitForm`), siempre sin UI: el SDK solo comunica. Hoy el registro es siempre
-> abierto. Diseño en el [doc del Core](https://github.com/Iteristech/gateward-core/blob/main/docs/FEATURES/ACCESS_AND_NOTIFICATIONS.md);
-> tarea `ACCESS-SDK-001` en [TASK_TODO.md](./docs/TASK_TODO.md).
+> Un app también puede registrar por invitación o con lista de espera: ver
+> [Acceso controlado](#acceso-controlado-lista-de-espera-listas-y-formularios).
 
 Cada app define su propia política (`password_policy` en el `AppResponse`), así
 que el Core rechaza con mensajes específicos — `password must contain digits
@@ -449,6 +446,108 @@ poder distinguir los dos casos.
 
 `GatewardAuth` también expone: `forgotPassword(email)`, `resetPassword(token, newPassword)`,
 `verifyEmail(token)`, `resendVerificationEmail(email)`.
+
+## Acceso controlado, lista de espera, listas y formularios
+
+Todo esto es **headless**: el SDK mueve datos y devuelve estados; tu app dibuja sus pantallas.
+La configuración (campos de un formulario, qué pasa al enviarlo, plantillas de correo) vive en
+Gateward y se edita por el dashboard o por el cliente de servidor. Diseño completo en el
+[doc del Core](https://github.com/Iteristech/gateward-core/blob/main/docs/FEATURES/ACCESS_AND_NOTIFICATIONS.md).
+
+### Qué pantalla mostrar
+
+`getAppConfig()` trae `registration_mode`:
+
+| Modo | Quién crea cuenta | Qué mostrar |
+|---|---|---|
+| `open` | Cualquiera (default) | Registro normal |
+| `invite_only` | Solo con una invitación | Registro con código, y opcionalmente la lista de espera |
+| `waitlist` | Solo quien fue liberado de la lista | Formulario de lista de espera |
+| `closed` | Nadie | Aviso de registro cerrado |
+
+```ts
+const { registration_mode } = await auth.getAppConfig();
+
+// Con una invitación: el correo cuenta como verificado y entra con sesión.
+await auth.register(email, password, { inviteToken: code });
+
+// Sin ella, en una app con lista de espera: responde igual exista o no la dirección.
+await auth.joinWaitlist(email, { metadata: { ref: "tw" }, consentSource: "landing" });
+await auth.confirmWaitlist(codeFromEmail); // doble confirmación
+```
+
+Un registro sin código en `invite_only` o `waitlist` responde `403` con
+`registration requires an invitation` o `registration is by waitlist`; un código inválido,
+vencido, usado o de otro correo responde siempre `400 invalid or expired invitation`.
+
+### Listas de correo
+
+```ts
+// Sin cuenta; en una lista de doble confirmación la persona confirma desde su correo.
+await auth.subscribeToList("novedades", email, { consentVersion: "2026-10" });
+await auth.confirmSubscription(codeFromEmail);
+await auth.unsubscribeFromList(tokenFromBroadcast); // un clic, sin login
+
+// Con sesión: preferencias del usuario (una cuenta verificada no necesita confirmar).
+const lists = await auth.listSubscriptions(); // subscribed | pending | unsubscribed | none
+await auth.setSubscription("novedades", true);
+```
+
+### Formularios de contacto
+
+```ts
+const form = await auth.getForm("contacto"); // campos para que dibujes el formulario
+try {
+  await auth.submitForm(
+    "contacto",
+    { email, message },
+    { honeypot, startedAt }, // antispam opcional: campo trampa y hora en que se mostró
+  );
+} catch (e) {
+  if (e instanceof GatewardError && e.fieldErrors) {
+    // { email: "not a valid email address", message: "required" } — todos a la vez
+  }
+}
+```
+
+`submitForm` va con la sesión si la hay (los formularios `authenticated` la exigen); pasá
+`anonymous: true` para enviarlo sin ella. Un envío que el antispam retiene recibe la misma
+respuesta que uno bueno.
+
+### Desde tu backend (API key)
+
+`GatewardServer` suma, con el scope que corresponde en la key y solo sobre su propia app:
+
+| Scope | Métodos |
+|---|---|
+| `invitations:write` | `createInvitations`, `listInvitations`, `revokeInvitation`, `resendInvitation` |
+| `waitlist:manage` | `listWaitlist`, `waitlistStats`, `releaseWaitlist`, `deleteWaitlistEntry` |
+| `notifications:send` | `sendNotification`, `listNotifications`, `getNotification`, `listTemplates`, `putTemplate`, `deleteTemplate`, `broadcast` |
+| `lists:manage` | `listMailingLists`, `createMailingList`, `updateMailingList`, `deleteMailingList`, `listSubscribers`, `deleteSubscriber`, `checkSuppression`, `addSuppression`, `removeSuppression` |
+| `forms:manage` | `listForms`, `getFormDefinition`, `putForm`, `deleteForm`, `listSubmissions`, `getSubmission`, `updateSubmission`, `deleteSubmission` |
+
+```ts
+const gw = new GatewardServer({ baseUrl, apiKey });
+
+await gw.createInvitations(appId, [{ email: "ana@app.com", role: "app_admin" }]);
+await gw.releaseWaitlist(appId, { count: 50 }); // por orden de llegada; crea invitaciones
+
+const { id } = await gw.sendNotification(appId, { to, template: "reporte_listo", variables: { name } });
+const sent = await gw.getNotification(appId, id); // pending | sent | failed
+
+await gw.putForm(appId, "contacto", {
+  name: "Contacto",
+  fields: [
+    { name: "email", type: "email", required: true },
+    { name: "message", type: "textarea", required: true },
+  ],
+  actions: [{ type: "notify_team", to: ["equipo@app.com"] }],
+});
+```
+
+Una plantilla con nombre de tipo de autenticación (`verification`, `password_reset`,
+`email_change`, `invitation`, `waitlist_confirm`, `list_confirm`) reemplaza el texto de ese
+correo y debe llevar `{{token}}`; cualquier otro nombre se envía por nombre.
 
 ## Migrar una app existente
 

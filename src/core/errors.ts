@@ -12,6 +12,16 @@ export class GatewardError extends Error {
     this.body = body;
   }
 
+  /** Per-field messages when the Core rejected a form post (400 with
+   *  `fields`), e.g. `{ email: "not a valid email address" }`. Undefined for
+   *  any other error. */
+  get fieldErrors(): Record<string, string> | undefined {
+    const fields = (this.body as { fields?: unknown } | undefined)?.fields;
+    return fields && typeof fields === "object"
+      ? (fields as Record<string, string>)
+      : undefined;
+  }
+
   get isRateLimited(): boolean {
     return this.status === 429;
   }

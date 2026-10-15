@@ -16,7 +16,7 @@
 
 Este SDK cubre la superficie de **cliente/integrador**. Las operaciones de admin
 (ecosystems, usuarios, api keys, email providers, webhooks) viven en el dashboard, sobre el
-primitivo `AuthSession` que este paquete exporta. Por eso `openapi.json` trae 45 paths y el
+primitivo `AuthSession` que este paquete exporta. Por eso `openapi.json` trae 78 paths y el
 SDK envuelve solo los que no son de control-plane.
 
 ## Reglas de escritura
