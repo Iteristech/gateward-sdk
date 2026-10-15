@@ -7,14 +7,14 @@
 
 ---
 
-## Estado `updated: 2026-10-14`
+## Estado `updated: 2026-10-15`
 
-Superficie de cliente/integrador **completa contra el contrato** del Core (45 paths,
-regenerado en #23): auth, perfil propio, password, email, borrado de cuenta, sesiones,
+Superficie de cliente/integrador **completa contra el contrato** del Core (78 paths,
+regenerado en octubre): auth, perfil propio, password, email, borrado de cuenta, sesiones,
 roles de app, config pública con guarda de environment, eventos y verificación de JWT.
 Lo no cubierto es admin/control-plane, que por diseño vive en el dashboard.
 
-`main`: PRs #9–#23, 129 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
+`main`: PRs #9–#23, 142 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
 en Node 20 y 22 (runners Strongback `sbk-small`; los PRs de forks caen a `ubuntu-latest`).
 
 El demo (`gateward-sdk-demo` #2) ejercita **toda** la superficie, incluida la guarda de
@@ -75,16 +75,12 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 
 ## Backlog
 
-### ACCESS-SDK-001: Invitación, lista de espera, listas de correo y formularios `added: 2026-10-15`
-- [ ] Bloqueado por el Core (`ACCESS-001`, `WAITLIST-001`, `NOTIF-001`, `LIST-001`, `FORMS-001`). Diseño y
-  superficie propuesta en el doc `ACCESS_AND_NOTIFICATIONS.md` del Core, sección "Superficie en el SDK".
-- [ ] Navegador: `registration_mode` en la config de la app, `register({ inviteToken })`,
-  `joinWaitlist`, `confirmWaitlist`, `subscribe`, `unsubscribe`, `listSubscriptions`, `getForm` y `submitForm`.
-- [ ] Backend (`/server`): `createInvitations`, `revokeInvitation`, `releaseWaitlist`,
-  `sendNotification`, `broadcast`, `listSubmissions`, `updateSubmission`.
-- [ ] **Sin UI**: el SDK solo transmite y devuelve datos y estados; la app dibuja sus formularios. Los campos y acciones de un formulario se configuran en Gateward, no en el SDK.
-- [ ] Hooks de React (solo estado de la petición, sin JSX) al final, cuando la superficie base esté probada en el demo.
-- [ ] Regenerar `openapi.json` con `pnpm gen:contract` cuando el Core lo publique.
+### ACCESS-SDK-002: Hooks de React para acceso, listas y formularios `added: 2026-10-15`
+- ACCESS-SDK-001 (superficie headless de navegador y de servidor) ya está en main: ver
+  `TASK_COMPLETED/2610.md`.
+- [ ] Hooks de React (`useWaitlist`, `useSubscription`, `useForm`) que solo guarden el estado de la
+  petición (enviando, error por campo, listo) y nunca devuelvan JSX. Se hacen cuando el demo
+  ejercite la superficie base.
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`
 - [ ] El Core ya permite asignar `app_admin`, y el SDK expone
