@@ -1,6 +1,6 @@
 # Gateward SDK — Task Backlog
 
-> Tracking activo del SDK. Uso en el [README](../README.md), decisiones de
+> Tracking activo del SDK. Uso en el [README](../README.md), flujo en [DEVELOPMENT.md](./DEVELOPMENT.md), decisiones de
 > diseño en [ARCHITECTURE/SESSION.md](./ARCHITECTURE/SESSION.md), integración
 > en [GUIDES/MIGRATION.md](./GUIDES/MIGRATION.md). Lo cerrado se archiva por mes
 > en [TASK_COMPLETED/](./TASK_COMPLETED/).
@@ -14,7 +14,7 @@ regenerado en octubre): auth, perfil propio, password, email, borrado de cuenta,
 roles de app, config pública con guarda de environment, eventos y verificación de JWT.
 Lo no cubierto es admin/control-plane, que por diseño vive en el dashboard.
 
-`main`: PRs #9–#32, 149 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
+`main`: PRs #9–#33, 149 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
 en Node 20 y 22 (runners Strongback `sbk-small`; los PRs de forks caen a `ubuntu-latest`).
 
 El demo (`gateward-sdk-demo` #2) ejercita **toda** la superficie, incluida la guarda de
@@ -29,6 +29,7 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
 ### DIST-001: Distribución pública `added: 2026-08-03`
 - [ ] Crear la org `gateward` en npm y el secret `NPM_TOKEN`.
 - [ ] Primer `npm publish` — lo corre una persona, no CI (irreversible).
+- Verificado 2026-10-15: `npm view @gateward/sdk` responde 404 y el repo no tiene tags, así que sigue sin publicarse.
 - Lo ya hecho (paquete publicable, CHANGELOG, workflow por tag) está en `TASK_COMPLETED/2609.md`.
 
 ### PILOT-001: Primera integración real `added: 2026-08-03`
@@ -43,6 +44,7 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
 ## Priority 2 — Después del primer feedback
 
 ### PY-001: SDK de Python `added: 2026-08-03`
+- [ ] Verificado 2026-10-15: no hay código Python en el repo ni tarea hermana en el backlog del Core (no verificado si el equipo core la planea). La hace el equipo core.
 - [ ] Verificación de token (JWKS + ES256) y cliente de eventos para backends
   Python (Django/DRF, FastAPI). **Es el único bloqueador que queda en la guía
   de migración.**
