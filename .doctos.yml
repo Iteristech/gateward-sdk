@@ -3,4 +3,8 @@ naming: UPPERCASE_SNAKE
 folders:
   ARCHITECTURE: decisiones de diseño del SDK (sesión, refresh, storage, SSR)
   GUIDES: migración desde otros patrones de auth, política de releases — solo lo no obvio
-root_allowed: []
+root_allowed: [CLAUDE.md]
+files:
+  DEVELOPMENT.md: setup, gate, contrato con el Core, ramas, PR y reglas de CI
+  TASK_TODO.md: backlog activo
+  TASK_COMPLETED/: tareas cerradas, un archivo AAMM.md por mes
