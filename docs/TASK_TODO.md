@@ -7,6 +7,9 @@
 
 ---
 
+Cada tarea dice qué, dónde y cuándo está hecha. `Onboarding: si` marca una buena primera
+tarea (chica e independiente); DIST-001 y PY-001 las hace el equipo core.
+
 ## Estado `updated: 2026-10-15`
 
 Superficie de cliente/integrador **completa contra el contrato** del Core (79 paths,
@@ -14,7 +17,7 @@ regenerado en octubre): auth, perfil propio, password, email, borrado de cuenta,
 roles de app, config pública con guarda de environment, eventos y verificación de JWT.
 Lo no cubierto es admin/control-plane, que por diseño vive en el dashboard.
 
-`main`: PRs #9–#33, 149 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
+`main`: PRs #9–#34, 149 tests, 4 entries (`index`, `server`, `react`, `next`). CI verde
 en Node 20 y 22 (runners Strongback `sbk-small`; los PRs de forks caen a `ubuntu-latest`).
 
 El demo (`gateward-sdk-demo` #2) ejercita **toda** la superficie, incluida la guarda de
@@ -30,9 +33,13 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
 - [ ] Crear la org `gateward` en npm y el secret `NPM_TOKEN`.
 - [ ] Primer `npm publish` — lo corre una persona, no CI (irreversible).
 - Verificado 2026-10-15: `npm view @gateward/sdk` responde 404 y el repo no tiene tags, así que sigue sin publicarse.
+- Onboarding: no (irreversible, lo hace el equipo core).
+- Hecho cuando: `npm view @gateward/sdk` devuelve la versión y existe el tag `v0.1.0`.
+- Verificado 2026-10-15: `pnpm publish --dry-run --no-git-checks` pasa typecheck, tests y build, y el tarball solo trae `dist/`, README, LICENSE y CHANGELOG.
 - Lo ya hecho (paquete publicable, CHANGELOG, workflow por tag) está en `TASK_COMPLETED/2609.md`.
 
 ### PILOT-001: Primera integración real `added: 2026-08-03`
+- Onboarding: no (depende del equipo de la app piloto). No verificado: el avance de la piloto no se ve desde este repo.
 - [ ] La aplica el equipo de la app piloto; nosotros respondemos su feedback.
 - [ ] Análisis previo en `GUIDES/MIGRATION.md`. Si la piloto corre sobre Convex,
   sus queries/mutations no pueden hacer `fetch` y no verifican un JWT por sí
@@ -44,6 +51,8 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
 ## Priority 2 — Después del primer feedback
 
 ### PY-001: SDK de Python `added: 2026-08-03`
+- Onboarding: no (equipo core).
+- Hecho cuando: existe el paquete con `verify_token` y `send_event` y la guía de migración deja de listar a Python como bloqueador.
 - [ ] Verificado 2026-10-15: no hay código Python en el repo ni tarea hermana en el backlog del Core (no verificado si el equipo core la planea). La hace el equipo core.
 - [ ] Verificación de token (JWKS + ES256) y cliente de eventos para backends
   Python (Django/DRF, FastAPI). **Es el único bloqueador que queda en la guía
@@ -55,6 +64,7 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
   paridad con el SDK de TS — un backend Python no hace login de usuario.
 
 ### E2E-001: Validar contra un Core desplegado `added: 2026-08-03`
+- Onboarding: no (bloqueado por prod). Hecho cuando: el ciclo completo pasa contra un Core real con las dos apps. No verificado: el estado del recurso de prod en Coolify.
 - [ ] Todo el suite corre contra stubs. Falta ejercitar el ciclo completo contra
   un Core real con dos apps: una con `require_email_verification` y otra sin.
 - [ ] **Bloqueado por prod**: hoy no existe el recurso en Coolify (Core DEPLOY-006).
@@ -78,6 +88,7 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 ## Backlog
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`
+- Onboarding: no (es una decisión de diseño). Hecho cuando: queda escrita la decisión en `docs/ARCHITECTURE/`.
 - [ ] El Core ya permite asignar `app_admin`, y el SDK expone
   `listMembers`/`setMemberRole`. Falta decidir si el SDK opina sobre permisos
   (matriz rol → permiso) o eso se queda en cada app.
@@ -86,5 +97,12 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
   del primer piloto, no antes.
 
 ### STORAGE-001: Alternativa a localStorage `added: 2026-08-03`
+- Onboarding: no (se evalúa tras el piloto). Código: `createWebStorage` en `src/core/storage.ts`.
 - [ ] `createWebStorage()` deja los tokens expuestos a XSS. Documentado, pero no
   hay alternativa por cookie. Evaluar tras el primer piloto en producción.
+
+### CONTRACT-001: Ejecutar `gen:contract` completo y confirmar que no hay desfase `added: 2026-10-15`
+- Onboarding: si
+- [ ] Con `../gateward-core` en `main` actualizado, correr `pnpm gen:contract` y luego `pnpm typecheck && pnpm test && pnpm build`.
+- [ ] Hecho cuando: `git diff` de `openapi.json` y `src/generated/api.ts` queda vacío (79 paths), o el desfase se abre como PR aparte.
+- Origen: `docs/DEVELOPMENT.md` dice que `gen:contract` completo no se ejecutó en la última revisión (no verificado). Necesita cargo.

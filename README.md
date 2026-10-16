@@ -8,7 +8,8 @@ OpenAPI** (`GET /api-docs/openapi.json`), no a mano.
   propias, y verificación local de JWT (ES256 vía JWKS).
 - `@gateward/sdk/server` — server-to-server con API key (`X-API-Key`): `sendEvent`,
   `listEvents`, `getUserMetadata`/`updateUserMetadata`, y `verifyToken`.
-- `@gateward/sdk/react` — `<GatewardProvider>` + `useAuth()` / `useUser()`.
+- `@gateward/sdk/react` — `<GatewardProvider>` + `useAuth()` / `useUser()`, más los hooks de
+  lista de espera, listas y formularios (`useWaitlist`, `useSubscription(s)`, `useForm`).
 - `@gateward/sdk/next` — gating SSR por cookie marcadora (Next middleware, Remix,
   SvelteKit: solo usa Request/Response estándar).
 
@@ -335,7 +336,7 @@ más los helpers `.isUnauthorized` / `.isForbidden` / `.isRateLimited`.
 Para logging/metrics, pasá `hooks` a cualquier cliente:
 
 ```ts
-new GatewardPlatform({
+new GatewardServer({
   baseUrl,
   hooks: {
     onRequest: ({ method, path }) => log.debug(`${method} ${path}`),
@@ -593,7 +594,7 @@ pnpm gen:types
 
 | Script | Qué hace |
 |---|---|
-| `pnpm build` | Bundle ESM+CJS+d.ts con tsup (`index`, `server`, `react`) |
+| `pnpm build` | Bundle ESM+CJS+d.ts con tsup (`index`, `server`, `react`, `next`) |
 | `pnpm test` | Suite vitest |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm gen:types` | `openapi.json` → `src/generated/api.ts` |
