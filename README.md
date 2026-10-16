@@ -8,7 +8,8 @@ OpenAPI** (`GET /api-docs/openapi.json`), no a mano.
   propias, y verificación local de JWT (ES256 vía JWKS).
 - `@gateward/sdk/server` — server-to-server con API key (`X-API-Key`): `sendEvent`,
   `listEvents`, `getUserMetadata`/`updateUserMetadata`, y `verifyToken`.
-- `@gateward/sdk/react` — `<GatewardProvider>` + `useAuth()` / `useUser()`.
+- `@gateward/sdk/react` — `<GatewardProvider>` + `useAuth()` / `useUser()`, más los hooks de
+  lista de espera, listas y formularios (`useWaitlist`, `useSubscription(s)`, `useForm`).
 - `@gateward/sdk/next` — gating SSR por cookie marcadora (Next middleware, Remix,
   SvelteKit: solo usa Request/Response estándar).
 
@@ -335,7 +336,7 @@ más los helpers `.isUnauthorized` / `.isForbidden` / `.isRateLimited`.
 Para logging/metrics, pasá `hooks` a cualquier cliente:
 
 ```ts
-new GatewardPlatform({
+new GatewardServer({
   baseUrl,
   hooks: {
     onRequest: ({ method, path }) => log.debug(`${method} ${path}`),
@@ -391,6 +392,9 @@ mismas reglas y manda.
 
 ## Política de password y alta
 
+> Un app también puede registrar por invitación o con lista de espera: ver
+> [Acceso controlado](#acceso-controlado-lista-de-espera-listas-y-formularios).
+
 Cada app define su propia política (`password_policy` en el `AppResponse`), así
 que el Core rechaza con mensajes específicos — `password must contain digits
 only`, `...at least one uppercase letter`, `...at most 4 characters` — en vez
@@ -444,6 +448,125 @@ poder distinguir los dos casos.
 `GatewardAuth` también expone: `forgotPassword(email)`, `resetPassword(token, newPassword)`,
 `verifyEmail(token)`, `resendVerificationEmail(email)`.
 
+## Acceso controlado, lista de espera, listas y formularios
+
+Todo esto es **headless**: el SDK mueve datos y devuelve estados; tu app dibuja sus pantallas.
+La configuración (campos de un formulario, qué pasa al enviarlo, plantillas de correo) vive en
+Gateward y se edita por el dashboard o por el cliente de servidor. Diseño completo en el
+[doc del Core](https://github.com/Iteristech/gateward-core/blob/main/docs/FEATURES/ACCESS_AND_NOTIFICATIONS.md).
+
+### Qué pantalla mostrar
+
+`getAppConfig()` trae `registration_mode`:
+
+| Modo | Quién crea cuenta | Qué mostrar |
+|---|---|---|
+| `open` | Cualquiera (default) | Registro normal |
+| `invite_only` | Solo con una invitación | Registro con código, y opcionalmente la lista de espera |
+| `waitlist` | Solo quien fue liberado de la lista | Formulario de lista de espera |
+| `closed` | Nadie | Aviso de registro cerrado |
+
+```ts
+const { registration_mode } = await auth.getAppConfig();
+
+// Con una invitación: el correo cuenta como verificado y entra con sesión.
+await auth.register(email, password, { inviteToken: code });
+
+// Sin ella, en una app con lista de espera: responde igual exista o no la dirección.
+await auth.joinWaitlist(email, { metadata: { ref: "tw" }, consentSource: "landing" });
+await auth.confirmWaitlist(codeFromEmail); // doble confirmación
+```
+
+Un registro sin código en `invite_only` o `waitlist` responde `403` con
+`registration requires an invitation` o `registration is by waitlist`; un código inválido,
+vencido, usado o de otro correo responde siempre `400 invalid or expired invitation`.
+
+### Listas de correo
+
+```ts
+// Sin cuenta; en una lista de doble confirmación la persona confirma desde su correo.
+await auth.subscribeToList("novedades", email, { consentVersion: "2026-10" });
+await auth.confirmSubscription(codeFromEmail);
+await auth.unsubscribeFromList(tokenFromBroadcast); // un clic, sin login
+
+// Con sesión: preferencias del usuario (una cuenta verificada no necesita confirmar).
+const lists = await auth.listSubscriptions(); // subscribed | pending | unsubscribed | none
+await auth.setSubscription("novedades", true);
+```
+
+### Formularios de contacto
+
+```ts
+const form = await auth.getForm("contacto"); // campos para que dibujes el formulario
+try {
+  await auth.submitForm(
+    "contacto",
+    { email, message },
+    { honeypot, startedAt }, // antispam opcional: campo trampa y hora en que se mostró
+  );
+} catch (e) {
+  if (e instanceof GatewardError && e.fieldErrors) {
+    // { email: "not a valid email address", message: "required" } — todos a la vez
+  }
+}
+```
+
+`submitForm` va con la sesión si la hay (los formularios `authenticated` la exigen); pasá
+`anonymous: true` para enviarlo sin ella. Un envío que el antispam retiene recibe la misma
+respuesta que uno bueno.
+
+### Hooks de React
+
+Con `@gateward/sdk/react` (dentro de `<GatewardProvider>`), guardan el estado de la petición y no
+devuelven JSX. Cada acción resuelve `true` o `false` en lugar de lanzar:
+
+```tsx
+const { join, status, error } = useWaitlist();
+const { subscribe } = useSubscription("novedades");
+const { lists, set } = useSubscriptions();          // preferencias del usuario con sesión
+const { form, submit, fieldErrors, loading } = useForm("contacto");
+
+if (await submit({ email, message })) showThanks();  // fieldErrors nombra todos los campos
+```
+
+`status` es `idle | pending | done | error`; `useForm` carga la definición y manda por ti la hora
+a la que se mostró el formulario.
+
+### Desde tu backend (API key)
+
+`GatewardServer` suma, con el scope que corresponde en la key y solo sobre su propia app:
+
+| Scope | Métodos |
+|---|---|
+| `invitations:write` | `createInvitations`, `listInvitations`, `revokeInvitation`, `resendInvitation` |
+| `waitlist:manage` | `listWaitlist`, `waitlistStats`, `releaseWaitlist`, `deleteWaitlistEntry` |
+| `notifications:send` | `sendNotification`, `listNotifications`, `getNotification`, `listTemplates`, `putTemplate`, `deleteTemplate`, `broadcast` |
+| `lists:manage` | `listMailingLists`, `createMailingList`, `updateMailingList`, `deleteMailingList`, `listSubscribers`, `deleteSubscriber`, `checkSuppression`, `addSuppression`, `removeSuppression` |
+| `forms:manage` | `listForms`, `getFormDefinition`, `putForm`, `deleteForm`, `listSubmissions`, `getSubmission`, `updateSubmission`, `deleteSubmission` |
+
+```ts
+const gw = new GatewardServer({ baseUrl, apiKey });
+
+await gw.createInvitations(appId, [{ email: "ana@app.com", role: "app_admin" }]);
+await gw.releaseWaitlist(appId, { count: 50 }); // por orden de llegada; crea invitaciones
+
+const { id } = await gw.sendNotification(appId, { to, template: "reporte_listo", variables: { name } });
+const sent = await gw.getNotification(appId, id); // pending | sent | failed
+
+await gw.putForm(appId, "contacto", {
+  name: "Contacto",
+  fields: [
+    { name: "email", type: "email", required: true },
+    { name: "message", type: "textarea", required: true },
+  ],
+  actions: [{ type: "notify_team", to: ["equipo@app.com"] }],
+});
+```
+
+Una plantilla con nombre de tipo de autenticación (`verification`, `password_reset`,
+`email_change`, `invitation`, `waitlist_confirm`, `list_confirm`) reemplaza el texto de ese
+correo y debe llevar `{{token}}`; cualquier otro nombre se envía por nombre.
+
 ## Migrar una app existente
 
 Guía por patrón de auth (Convex singleton, NextAuth, zustand+axios, JWT propio,
@@ -471,7 +594,7 @@ pnpm gen:types
 
 | Script | Qué hace |
 |---|---|
-| `pnpm build` | Bundle ESM+CJS+d.ts con tsup (`index`, `server`, `react`) |
+| `pnpm build` | Bundle ESM+CJS+d.ts con tsup (`index`, `server`, `react`, `next`) |
 | `pnpm test` | Suite vitest |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm gen:types` | `openapi.json` → `src/generated/api.ts` |
@@ -483,6 +606,13 @@ pnpm gen:types
 - `POST /v1/auth/logout` requiere **`Authorization: Bearer <access>`** (no el refresh en body).
 - Endpoints con `AppContext` requieren el header **`X-Gateward-App-Id`**.
 - `POST /v1/events` (sendEvent) exige scope `events:write` y `event_type` namespaced.
+
+## Cómo se trabaja
+
+Rama por cambio, PR a `main` con squash-merge; `main` no despliega. Se promueve con PR
+`main` a `stg` y luego a `prod`, siempre con merge commit. CI corre en Strongback
+(`[self-hosted, sbk-small]`; los PRs de forks usan `ubuntu-latest`), sin caches y con
+`timeout-minutes` y `concurrency` en cada workflow. Un PR no se mergea en rojo.
 
 ## Documentación
 

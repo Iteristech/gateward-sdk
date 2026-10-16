@@ -197,7 +197,7 @@ formato se rechaza **en el import**, no en el primer login, así que te enterás
 al migrar y no cuando el usuario no pueda entrar.
 
 Detalles operativos (máximo 200 por request, veredicto por fila, una fila mala
-no tumba el lote) en la guía `docs/GUIDES/user-migration.md` del Core.
+no tumba el lote) en la guía `docs/GUIDES/USER_MIGRATION.md` del Core.
 
 Es superficie de admin, así que la corre un operador desde el dashboard — no la
 app integrada, y por eso no está en este SDK.
@@ -226,7 +226,7 @@ configurado el token de verificación solo queda en los logs del Core y no hay
 forma de completar el alta desde afuera.
 
 La prueba que de verdad valida el aislamiento es la última del checklist del
-Core (`docs/GUIDES/integration-testing.md`): **el usuario de QA tiene que dar
+Core (`docs/GUIDES/INTEGRATION_TESTING.md`): **el usuario de QA tiene que dar
 401 contra el `app_id` de producción.** Corrémela antes de dar por buena una
 integración.
 

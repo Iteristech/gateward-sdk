@@ -11,6 +11,13 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
 
 ### Added
 
+- **Hooks de React** `useWaitlist`, `useSubscription`, `useSubscriptions` y `useForm` en
+  `@gateward/sdk/react`: estado de la petición y errores por campo, sin JSX.
+- **Acceso controlado, listas y formularios** (headless): `register` con `inviteToken`,
+  `joinWaitlist`/`confirmWaitlist`, `subscribeToList` y compañía, `getForm`/`submitForm`,
+  `GatewardError.fieldErrors`, y en `GatewardServer` invitaciones, lista de espera,
+  notificaciones, plantillas, listas, supresiones y formularios. Requiere un Core con
+  ACCESS-001, WAITLIST-001, LIST-001, FORMS-001 y NOTIF-001.
 - **Distribución pública** — el paquete deja de ser `private`, se publica como
   `@gateward/sdk` en npm bajo MIT, con provenance desde CI por tag.
 - Este CHANGELOG y la política de releases.
