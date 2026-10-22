@@ -85,6 +85,23 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 
 ---
 
+## Rendimiento (auditoría 2026-10-22) `added: 2026-10-22`
+
+> Salió de leer `src/` y de los entries de `dist/`. **Inferido del código**, sin medir en navegador.
+
+### PERF-S01: Sacar `JwtVerifier` del entry `index` `added: 2026-10-22`
+- Qué: `src/index.ts` exporta `JwtVerifier`, que importa `jose` (`src/jwt/verify.ts`). Vite lo descarta por `sideEffects: false` y en el dashboard solo entran ~8.5 kB de `jose`, pero un bundler que no respete `sideEffects`, o un consumidor CJS (`dist/index.cjs` pesa 36.8 kB), arrastraría la verificación completa al navegador.
+- Hecho cuando: `dist/index.js` no importa `jose` desde `GatewardAuth`, `JwtVerifier` vive solo en `/server`, el cambio queda en el CHANGELOG y la versión sigue `RELEASING.md` (es cambio de API).
+- [ ] Mover el export y actualizar README y demo
+- Onboarding: no (cambio de API)
+
+### PERF-S02: Comparar el token antes de reintentar un 401 `added: 2026-10-22`
+- Qué: el refresh es single-flight dentro de una pestaña (`runRefresh` en `src/core/session.ts`), pero si dos peticiones reciben 401 con tiempos distintos, la segunda llega cuando el refresh ya terminó y lanza otro con el token rotado. Tampoco hay lock entre pestañas.
+- Hecho cuando: si el token guardado ya es distinto del usado en la petición fallida, se reintenta sin refrescar, y un test con dos 401 escalonados produce un único `POST /v1/auth/refresh`. Opcional: `navigator.locks` entre pestañas.
+- [ ] Comparar el token antes de refrescar
+- Related: `gateward-dashboard/docs/TASK_TODO.md` PERF-D07
+- Onboarding: no
+
 ## Backlog
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`
