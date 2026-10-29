@@ -42,8 +42,8 @@ pnpm typecheck && pnpm test && pnpm build
 `gen:contract` ejecuta el binario `dump_openapi` del Core con cargo, así que necesita
 `../gateward-core` clonado al lado y en la rama `main` actualizada. No necesita un Core
 corriendo. `pnpm gen:types` regenera solo los tipos a partir del `openapi.json` actual.
-Comprobado con `gen:types` sin cambios; `gen:contract` completo no se ejecutó en esta
-revisión (no verificado). Regenerar no es por sí solo un release: ver
+Comprobado el 2026-10-28 con `gen:contract` completo contra el Core en `954618b`: `openapi.json`
+y `src/generated/api.ts` sin cambios (79 paths). Regenerar no es por sí solo un release: ver
 [GUIDES/RELEASING.md](./GUIDES/RELEASING.md).
 
 ## Ramas y PR
