@@ -5,6 +5,8 @@ import type { FetchLike } from "./types.js";
 export interface FetchSession {
   getAccessToken(): Promise<string>;
   refresh(): Promise<{ accessToken: string }>;
+  /** Preferred after a 401: skips the refresh when the token already rotated. */
+  refreshIfStale?(usedAccessToken: string): Promise<{ accessToken: string }>;
 }
 
 export interface AuthedFetchOptions {
@@ -45,7 +47,10 @@ export function createAuthedFetch(
 
     let fresh: string;
     try {
-      fresh = (await session.refresh()).accessToken;
+      const refreshed = session.refreshIfStale
+        ? await session.refreshIfStale(token)
+        : await session.refresh();
+      fresh = refreshed.accessToken;
     } catch {
       // Masking the API's 401 with the refresh error hides why it failed.
       return first;

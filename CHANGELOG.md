@@ -22,6 +22,10 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
   `@gateward/sdk` en npm bajo MIT, con provenance desde CI por tag.
 - Este CHANGELOG y la política de releases.
 
+### Fixed
+
+- Un segundo 401 que llega cuando otra petición ya rotó el token reintenta con el token guardado en vez de lanzar otro `POST /v1/auth/refresh` (nuevo `refreshIfStale` en la sesión; `createFetch` y `authedRequest` lo usan).
+
 ## [0.1.0] — sin publicar
 
 Primera superficie completa de cliente/integrador. Todo lo de abajo ya está en
