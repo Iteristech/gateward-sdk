@@ -117,9 +117,3 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 - Onboarding: no (se evalúa tras el piloto). Código: `createWebStorage` en `src/core/storage.ts`.
 - [ ] `createWebStorage()` deja los tokens expuestos a XSS. Documentado, pero no
   hay alternativa por cookie. Evaluar tras el primer piloto en producción.
-
-### CONTRACT-001: Ejecutar `gen:contract` completo y confirmar que no hay desfase `added: 2026-10-15`
-- Onboarding: si
-- [ ] Con `../gateward-core` en `main` actualizado, correr `pnpm gen:contract` y luego `pnpm typecheck && pnpm test && pnpm build`.
-- [ ] Hecho cuando: `git diff` de `openapi.json` y `src/generated/api.ts` queda vacío (79 paths), o el desfase se abre como PR aparte.
-- Origen: `docs/DEVELOPMENT.md` dice que `gen:contract` completo no se ejecutó en la última revisión (no verificado). Necesita cargo.
