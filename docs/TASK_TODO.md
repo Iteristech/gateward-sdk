@@ -95,13 +95,6 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 - [ ] Mover el export y actualizar README y demo
 - Onboarding: no (cambio de API)
 
-### PERF-S02: Comparar el token antes de reintentar un 401 `added: 2026-10-22`
-- Qué: el refresh es single-flight dentro de una pestaña (`runRefresh` en `src/core/session.ts`), pero si dos peticiones reciben 401 con tiempos distintos, la segunda llega cuando el refresh ya terminó y lanza otro con el token rotado. Tampoco hay lock entre pestañas.
-- Hecho cuando: si el token guardado ya es distinto del usado en la petición fallida, se reintenta sin refrescar, y un test con dos 401 escalonados produce un único `POST /v1/auth/refresh`. Opcional: `navigator.locks` entre pestañas.
-- [ ] Comparar el token antes de refrescar
-- Related: `gateward-dashboard/docs/TASK_TODO.md` PERF-D07
-- Onboarding: no
-
 ## Backlog
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`
