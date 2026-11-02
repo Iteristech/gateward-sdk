@@ -190,3 +190,49 @@ describe("createFetch", () => {
     expect(calls[3]!.body).toEqual({ total: 42 });
   });
 });
+
+describe("staggered 401s", () => {
+  it("refreshes once when a second request fails after the token already rotated", async () => {
+    const original = fakeAccessToken(future(), ["0"]);
+    const rotated = fakeAccessToken(future(), ["1"]);
+    let refreshes = 0;
+    const json = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "content-type": "application/json" },
+      });
+    const tokens = (access: string, refresh: string) => ({
+      access_token: access,
+      refresh_token: refresh,
+      token_type: "Bearer",
+      expires_in: 900,
+    });
+
+    const fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/v1/auth/login")) return json(tokens(original, "refresh-0"));
+      if (url.endsWith("/v1/auth/refresh")) {
+        refreshes += 1;
+        return json(tokens(rotated, "refresh-1"));
+      }
+      const headers = new Headers(init?.headers);
+      const stale = headers.get("authorization") === `Bearer ${original}`;
+      // The slow request learns its token is dead only after the refresh ran.
+      if (stale && url.endsWith("/slow")) await new Promise((r) => setTimeout(r, 30));
+      return stale ? json({ error: "expired" }, 401) : json({ ok: 1 });
+    }) as typeof globalThis.fetch;
+
+    const auth = new GatewardAuth({ baseUrl: BASE, appId: APP, fetch });
+    await auth.login("a@b.co", "pw");
+    const apiFetch = auth.createFetch({ fetch });
+
+    const [fast, slow] = await Promise.all([
+      apiFetch(`${API}/fast`),
+      apiFetch(`${API}/slow`),
+    ]);
+
+    expect(fast.status).toBe(200);
+    expect(slow.status).toBe(200);
+    expect(refreshes).toBe(1);
+  });
+});

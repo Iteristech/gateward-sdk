@@ -85,6 +85,16 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 
 ---
 
+## Rendimiento (auditoría 2026-10-22) `added: 2026-10-22`
+
+> Salió de leer `src/` y de los entries de `dist/`. **Inferido del código**, sin medir en navegador.
+
+### PERF-S01: Sacar `JwtVerifier` del entry `index` `added: 2026-10-22`
+- Qué: `src/index.ts` exporta `JwtVerifier`, que importa `jose` (`src/jwt/verify.ts`). Vite lo descarta por `sideEffects: false` y en el dashboard solo entran ~8.5 kB de `jose`, pero un bundler que no respete `sideEffects`, o un consumidor CJS (`dist/index.cjs` pesa 36.8 kB), arrastraría la verificación completa al navegador.
+- Hecho cuando: `dist/index.js` no importa `jose` desde `GatewardAuth`, `JwtVerifier` vive solo en `/server`, el cambio queda en el CHANGELOG y la versión sigue `RELEASING.md` (es cambio de API).
+- [ ] Mover el export y actualizar README y demo
+- Onboarding: no (cambio de API)
+
 ## Backlog
 
 ### RBAC-001: Helpers de roles `added: 2026-08-03`
@@ -100,9 +110,3 @@ Coolify desde la imagen de GHCR (`v0.1.0` ya publicada).
 - Onboarding: no (se evalúa tras el piloto). Código: `createWebStorage` en `src/core/storage.ts`.
 - [ ] `createWebStorage()` deja los tokens expuestos a XSS. Documentado, pero no
   hay alternativa por cookie. Evaluar tras el primer piloto en producción.
-
-### CONTRACT-001: Ejecutar `gen:contract` completo y confirmar que no hay desfase `added: 2026-10-15`
-- Onboarding: si
-- [ ] Con `../gateward-core` en `main` actualizado, correr `pnpm gen:contract` y luego `pnpm typecheck && pnpm test && pnpm build`.
-- [ ] Hecho cuando: `git diff` de `openapi.json` y `src/generated/api.ts` queda vacío (79 paths), o el desfase se abre como PR aparte.
-- Origen: `docs/DEVELOPMENT.md` dice que `gen:contract` completo no se ejecutó en la última revisión (no verificado). Necesita cargo.
