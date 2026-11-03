@@ -390,6 +390,31 @@ mismas reglas y manda.
 > endpoint responde **403** como el resto. En desarrollo, registrá el puerto
 > local o vas a ver un 403 que parece un bug del SDK.
 
+### Qué Core usa cada ambiente
+
+Dos instancias del Core, con bases de datos separadas:
+
+| Ambiente | Core (`baseUrl`) | `environment` del app | `expectEnvironment` |
+|---|---|---|---|
+| Local, pruebas y staging | `https://stg-gateward-core.fondor.space` | `development`, `test` o `staging` | `["development", "test", "staging"]` |
+| Producción | UNKNOWN (DEPLOY-006) | `production` | `"production"` |
+
+Local no monta su propio Core: apunta al de stg, así todos prueban sobre los
+mismos registros. Producción nunca se mezcla con eso.
+
+- Cada app se registra en el Core de su ambiente. Un `appId` de stg no existe en
+  producción y al revés.
+- `baseUrl` y `appId` salen de variables de entorno por ambiente, nunca fijos
+  en el código.
+- Un build de producción pasa `expectEnvironment: "production"`; uno de local o
+  stg pasa la lista de arriba. Así ninguno puede apuntar al otro Core sin que
+  el SDK falle.
+- Si la app corre en el navegador en `http://localhost:PUERTO`, ese origen va en
+  `allowed_origins` del app y en `CORS_ALLOWED_ORIGINS` del Core de stg (no
+  verificado que ya esté). Desde servidor no hace falta.
+- Stg es compartida: sin datos reales de clientes. Usuarios de prueba con
+  prefijo, por ejemplo `test+nombre@`.
+
 ## Política de password y alta
 
 > Un app también puede registrar por invitación o con lista de espera: ver
