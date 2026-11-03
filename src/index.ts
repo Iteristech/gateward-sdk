@@ -45,6 +45,9 @@ export {
   EnvironmentMismatchError,
   type AppEnvironment,
 } from "./core/app-config.js";
+export type { JoinWaitlistOptions } from "./core/access.js";
+export type { SubscribeOptions } from "./core/messaging.js";
+export type { SubmitFormOptions } from "./core/forms.js";
 export type {
   ListMembersQuery,
   MemberPage,
@@ -66,4 +69,23 @@ export type {
   FetchLike,
   ForgotPasswordResponse,
   ResendVerificationEmailResponse,
+  RegistrationMode,
+  MySubscription,
+  PublicForm,
+  FormField,
+  FormFieldKind,
+  CreatedInvitation,
+  Invitation,
+  WaitlistEntry,
+  WaitlistStats,
+  ReleasedEntry,
+  QueuedNotification,
+  NotificationRecord,
+  NotificationTemplate,
+  MailingList,
+  Subscriber,
+  SuppressionStatus,
+  FormAction,
+  FormDefinition,
+  FormSubmission,
 } from "./core/types.js";

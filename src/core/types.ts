@@ -24,6 +24,26 @@ export type MembershipResponse = Omit<
   "local_metadata"
 > & { local_metadata: Record<string, unknown> };
 export type EventRecord = Schemas["EventRecord"];
+export type RegistrationMode = Schemas["RegistrationMode"];
+/** ACCESS: invitations, the waiting list, mailing lists and contact forms. */
+export type CreatedInvitation = Schemas["CreatedInvitationResponse"];
+export type Invitation = Schemas["InvitationResponse"];
+export type WaitlistEntry = Schemas["WaitlistEntryResponse"];
+export type WaitlistStats = Schemas["WaitlistStatsResponse"];
+export type ReleasedEntry = Schemas["ReleasedEntry"];
+export type QueuedNotification = Schemas["QueuedNotification"];
+export type NotificationRecord = Schemas["NotificationResponse"];
+export type NotificationTemplate = Schemas["TemplateResponse"];
+export type MailingList = Schemas["ListResponse"];
+export type Subscriber = Schemas["SubscriberResponse"];
+export type MySubscription = Schemas["MySubscription"];
+export type SuppressionStatus = Schemas["SuppressionResponse"];
+export type PublicForm = Schemas["PublicFormResponse"];
+export type FormField = Schemas["FormField"];
+export type FormFieldKind = Schemas["FieldKind"];
+export type FormAction = Schemas["FormAction"];
+export type FormDefinition = Schemas["FormResponse"];
+export type FormSubmission = Schemas["SubmissionResponse"];
 export type ActorKind = Schemas["ActorKind"];
 export type Jwk = Schemas["Jwk"];
 export type JwksResponse = Schemas["JwksResponse"];

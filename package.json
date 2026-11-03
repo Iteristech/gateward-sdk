@@ -6,11 +6,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dPeluChe/gateward-sdk.git"
+    "url": "git+https://github.com/Iteristech/gateward-sdk.git"
   },
-  "homepage": "https://github.com/dPeluChe/gateward-sdk#readme",
+  "homepage": "https://github.com/Iteristech/gateward-sdk#readme",
   "bugs": {
-    "url": "https://github.com/dPeluChe/gateward-sdk/issues"
+    "url": "https://github.com/Iteristech/gateward-sdk/issues"
   },
   "keywords": [
     "gateward",

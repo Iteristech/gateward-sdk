@@ -266,8 +266,8 @@ export interface paths {
         };
         get: operations["get_email_provider"];
         /**
-         * Idempotent upsert: an app has at most one provider, so PUT reads better
-         *     than juggling POST-then-PATCH for something with a single instance.
+         * Idempotent upsert: PUT reads better than juggling POST-then-PATCH for a
+         *     provider addressed by its position.
          */
         put: operations["put_email_provider"];
         post?: never;
@@ -293,6 +293,266 @@ export interface paths {
          */
         post: operations["test_email_provider"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/email-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_email_providers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/email-providers/{priority}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_email_provider_by_priority"];
+        put: operations["put_email_provider_by_priority"];
+        post?: never;
+        delete: operations["delete_email_provider_by_priority"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/email-providers/{priority}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["receive_provider_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/email-providers/{priority}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_email_provider_by_priority"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_forms"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/forms/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_form_admin"];
+        /**
+         * Idempotent upsert of the whole definition: a form is small and edited as a
+         *     unit, and a partial PATCH of a fields array invites half-applied edits.
+         */
+        put: operations["put_form"];
+        post?: never;
+        delete: operations["delete_form"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/forms/{slug}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_form_submissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/forms/{slug}/submissions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_form_submission"];
+        put?: never;
+        post?: never;
+        delete: operations["delete_form_submission"];
+        options?: never;
+        head?: never;
+        patch: operations["update_form_submission"];
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_invitations"];
+        put?: never;
+        post: operations["create_invitations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/invitations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revoke_invitation"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/invitations/{id}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["resend_invitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_mailing_lists"];
+        put?: never;
+        post: operations["create_mailing_list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/lists/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_mailing_list"];
+        options?: never;
+        head?: never;
+        patch: operations["update_mailing_list"];
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/lists/{slug}/broadcasts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["broadcast_to_list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/lists/{slug}/subscribers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_subscribers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/lists/{slug}/subscribers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_subscriber"];
         options?: never;
         head?: never;
         patch?: never;
@@ -334,6 +594,150 @@ export interface paths {
          *     refreshes — scopes are re-derived at `/v1/auth/refresh` (scopes.rs).
          */
         patch: operations["update_member_role"];
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/notification-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_notification_templates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/notification-templates/{kind}/{locale}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["put_notification_template"];
+        post?: never;
+        delete: operations["delete_notification_template"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_notifications"];
+        put?: never;
+        post: operations["send_notification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/notifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_notification"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/suppressions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["check_suppression"];
+        put?: never;
+        post: operations["add_suppression"];
+        delete: operations["remove_suppression"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/waitlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_waitlist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/waitlist/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["release_waitlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/waitlist/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["waitlist_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/waitlist/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_waitlist_entry"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/apps/{app_id}/webhooks": {
@@ -600,6 +1004,38 @@ export interface paths {
         patch: operations["patch_me"];
         trace?: never;
     };
+    "/v1/auth/me/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_my_subscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/me/subscriptions/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["set_my_subscription"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/platform-login": {
         parameters: {
             query?: never;
@@ -812,6 +1248,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/forms/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_form"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/forms/{slug}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["submit_form"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/identity-pools": {
         parameters: {
             query?: never;
@@ -843,6 +1311,54 @@ export interface paths {
          *     Refuses the system pool, or one that still has apps or users (409).
          */
         delete: operations["delete_identity_pool"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lists/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirm_subscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lists/unsubscribe/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["unsubscribe_from_list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lists/{slug}/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["subscribe_to_list"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -899,6 +1415,38 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["patch_metadata"];
+        trace?: never;
+    };
+    "/v1/waitlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["join_waitlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/waitlist/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirm_waitlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -974,6 +1522,11 @@ export interface components {
              */
             password_policy: components["schemas"]["PasswordPolicy"];
             /**
+             * @description ACCESS-001: `open` | `invite_only` | `waitlist` | `closed`. A client reads
+             *     it to decide which screen to show before the user types anything.
+             */
+            registration_mode: components["schemas"]["RegistrationMode"];
+            /**
              * @description Whether `POST /v1/auth/register` leaves the account email-gated. When
              *     false, registration returns tokens directly.
              */
@@ -992,8 +1545,30 @@ export interface components {
             name: string;
             password_policy: components["schemas"]["PasswordPolicy"];
             redirect_urls: string[];
+            registration_mode: components["schemas"]["RegistrationMode"];
             require_email_verification: boolean;
             status: string;
+        };
+        BroadcastRequest: {
+            locale?: string | null;
+            subject?: string | null;
+            /** @description Name of a stored template. Alternative to `subject` + `text`. */
+            template?: string | null;
+            text?: string | null;
+            /**
+             * @description Values for `{{placeholders}}`, in addition to the per-person
+             *     `{{email}}` and `{{unsubscribe_url}}`.
+             */
+            variables?: {
+                [key: string]: unknown;
+            };
+        };
+        BroadcastResponse: {
+            /**
+             * Format: int64
+             * @description Messages queued, one per active subscriber who is not suppressed.
+             */
+            queued: number;
         };
         ChangeEmailRequest: {
             new_email: string;
@@ -1026,6 +1601,16 @@ export interface components {
             locale?: string | null;
             os?: string | null;
             timezone?: string | null;
+        };
+        ConfirmSubscriptionRequest: {
+            token: string;
+        };
+        ConfirmWaitlistRequest: {
+            /** @description The code from the confirmation email. */
+            token: string;
+        };
+        ConfirmWaitlistResponse: {
+            status: string;
         };
         /**
          * @description Documented shape of `EventRecord.metadata` for events the Core emits
@@ -1080,6 +1665,7 @@ export interface components {
             name: string;
             password_policy?: null | components["schemas"]["PasswordPolicy"];
             redirect_urls?: string[];
+            registration_mode?: null | components["schemas"]["RegistrationMode"];
             /**
              * @description Whether registration leaves the account unverified and email-gated.
              *     Omitted means `true` — the historical behaviour.
@@ -1095,11 +1681,36 @@ export interface components {
             mode: components["schemas"]["IdentityMode"];
             name: string;
         };
+        CreateInvitationsRequest: {
+            /**
+             * Format: int64
+             * @description 1 to 30, default 7.
+             */
+            expires_in_days?: number | null;
+            /** @description 1 to 100 invitations. The batch is atomic: one bad entry rejects all. */
+            invitations: components["schemas"]["InvitationInput"][];
+            /** @description Default true. Pass false when the app delivers the code itself. */
+            send_email?: boolean | null;
+        };
+        CreateListRequest: {
+            description?: string | null;
+            /** @description Default true. */
+            double_opt_in?: boolean | null;
+            name: string;
+            /** @description Lowercase letters, digits and hyphens, up to 40. */
+            slug: string;
+            unsubscribe_url?: string | null;
+        };
         CreateWebhookRequest: {
             description?: string | null;
             /** @description Omit or leave empty to receive every event. */
             event_types?: string[];
             url: string;
+        };
+        /** @description The code is returned **once**, like an API key: only its hash is stored. */
+        CreatedInvitationResponse: components["schemas"]["InvitationResponse"] & {
+            /** @description Pass it as `invite_token` to `POST /v1/auth/register`. */
+            token: string;
         };
         /**
          * @description The signing secret is returned **once**, at creation. Same contract as an
@@ -1152,11 +1763,15 @@ export interface components {
             app_id: string;
             from_address: string;
             from_name?: string | null;
+            /** @description Whether a secret is stored for verifying bounce and complaint callbacks. */
+            has_inbound_secret: boolean;
             /**
              * @description Whether a credential is stored. The credential itself is never
              *     returned, in any shape — not masked, not truncated.
              */
             has_secret: boolean;
+            http_url?: string | null;
+            /** @description `smtp`, `resend` or `http`. */
             kind: string;
             /**
              * @description Last delivery failure verbatim from the provider ("domain is not
@@ -1168,6 +1783,14 @@ export interface components {
             last_error_at?: string | null;
             /** Format: date-time */
             last_success_at?: string | null;
+            /**
+             * Format: int32
+             * @description Order of use, 0 first. The singular `/email-provider` endpoints are
+             *     priority 0.
+             */
+            priority: number;
+            /** @description `transactional`, `broadcast` or `any`. */
+            purpose: string;
             smtp_host?: string | null;
             /** Format: int32 */
             smtp_port?: number | null;
@@ -1206,11 +1829,72 @@ export interface components {
             /** Format: uuid */
             user_id?: string | null;
         };
+        /** @enum {string} */
+        FieldKind: "text" | "email" | "textarea" | "select" | "checkbox";
         ForgotPasswordRequest: {
             email: string;
         };
         ForgotPasswordResponse: {
             message: string;
+        };
+        /** @description What happens after a submission is stored, in order. */
+        FormAction: {
+            to: string[];
+            /** @enum {string} */
+            type: "notify_team";
+        } | {
+            locale?: string | null;
+            template: string;
+            /** @enum {string} */
+            type: "autoreply";
+        } | {
+            consent_field?: string | null;
+            list: string;
+            /** @enum {string} */
+            type: "subscribe";
+        } | {
+            consent_field?: string | null;
+            /** @enum {string} */
+            type: "waitlist";
+        };
+        /**
+         * @description One input of a form. The Core validates against this; the SDK hands it to
+         *     the app so it can draw the form and check early, but only the server's
+         *     verdict counts.
+         */
+        FormField: {
+            /** @description Text for the app to show; the Core does not interpret it. */
+            label?: string | null;
+            /** @description Characters, for text-like fields. Default 2000, at most 10000. */
+            max_length?: number | null;
+            /** @description `a-z`, `0-9` and underscore, starting with a letter. */
+            name: string;
+            /** @description `select` only: the allowed values. */
+            options?: string[];
+            required?: boolean;
+            type: components["schemas"]["FieldKind"];
+        };
+        FormResponse: {
+            /** @description `public` or `authenticated`. */
+            access: string;
+            actions: components["schemas"]["FormAction"][];
+            /** Format: date-time */
+            created_at: string;
+            description?: string | null;
+            fields: components["schemas"]["FormField"][];
+            /** Format: int32 */
+            min_fill_seconds: number;
+            name: string;
+            /**
+             * Format: int64
+             * @description Submissions still marked `new`.
+             */
+            new_submissions: number;
+            /** Format: int32 */
+            retention_days?: number | null;
+            slug: string;
+            /** @description `active` or `archived`. An archived form stops accepting posts. */
+            status: string;
         };
         /** @enum {string} */
         IdentityMode: "ecosystem_shared" | "isolated";
@@ -1265,6 +1949,43 @@ export interface components {
             results: components["schemas"]["ImportResult"][];
             skipped: number;
         };
+        InvitationInput: {
+            email: string;
+            role?: null | components["schemas"]["MembershipRole"];
+        };
+        InvitationResponse: {
+            /** Format: date-time */
+            accepted_at?: string | null;
+            /** Format: uuid */
+            app_id: string;
+            /** Format: date-time */
+            created_at: string;
+            email: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            invited_by?: string | null;
+            role: components["schemas"]["MembershipRole"];
+            /** @description `pending` | `accepted` | `revoked`. */
+            status: string;
+        };
+        JoinWaitlistRequest: {
+            /** @description Where the address was collected, kept as the consent record. */
+            consent_source?: string | null;
+            email: string;
+            /** @description Language for later emails, e.g. `es-MX`. */
+            locale?: string | null;
+            /**
+             * @description Free-form object the app wants kept with the entry (referrer, interest).
+             *     At most 4 KB.
+             */
+            metadata?: unknown;
+        };
+        JoinWaitlistResponse: {
+            message: string;
+        };
         /**
          * @description JWK as published in the JWKS endpoint. RFC 7517 §4.
          *     `crv = "P-256"`, `kty = "EC"`, `alg = "ES256"` for ES256 keys.
@@ -1314,6 +2035,24 @@ export interface components {
             until?: string | null;
             /** Format: uuid */
             user_id?: string | null;
+        };
+        ListResponse: {
+            /** Format: date-time */
+            created_at: string;
+            description?: string | null;
+            double_opt_in: boolean;
+            name: string;
+            /** Format: int64 */
+            pending: number;
+            slug: string;
+            /** @description `active` | `archived`. */
+            status: string;
+            /** Format: int64 */
+            subscribed: number;
+            /** @description Template for the unsubscribe link in broadcasts; `{token}` is replaced. */
+            unsubscribe_url?: string | null;
+            /** Format: int64 */
+            unsubscribed: number;
         };
         ListUsersQuery: {
             /** Format: uuid */
@@ -1374,6 +2113,34 @@ export interface components {
         };
         /** @enum {string} */
         MembershipRole: "member" | "app_admin";
+        MySubscription: {
+            description?: string | null;
+            name: string;
+            slug: string;
+            /** @description `subscribed` | `pending` | `unsubscribed` | `none`. */
+            status: string;
+        };
+        NotificationResponse: {
+            /** Format: uuid */
+            app_id: string;
+            /** Format: int32 */
+            attempts: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            last_error?: string | null;
+            purpose: string;
+            /** Format: date-time */
+            sent_at?: string | null;
+            /** @description `auth` (sent inline by the Core), `api` or `broadcast`. */
+            source: string;
+            /** @description `pending` | `sending` | `sent` | `failed`. */
+            status: string;
+            subject: string;
+            to_email: string;
+        };
         OpenIdConfiguration: {
             claims_supported: string[];
             grant_types_supported: string[];
@@ -1418,14 +2185,41 @@ export interface components {
             /** @description JSON object shallow-merged into the membership's `local_metadata`. */
             metadata: unknown;
         };
+        PublicFormResponse: {
+            /** @description `public` or `authenticated`. */
+            access: string;
+            description?: string | null;
+            fields: components["schemas"]["FormField"][];
+            /**
+             * Format: int32
+             * @description Seconds a person is expected to take; a faster post is held as spam.
+             */
+            min_fill_seconds: number;
+            name: string;
+            slug: string;
+        };
         PutEmailProviderRequest: {
             from_address: string;
             from_name?: string | null;
-            /** @description `smtp` or `resend`. */
-            kind: string;
             /**
-             * @description API key or SMTP password. Omit on update to keep the stored one —
-             *     otherwise editing the From address would silently wipe the credential.
+             * @description `http` only: where the Core POSTs each message as JSON (`from`, `to`,
+             *     `subject`, `text`, `kind`, `token`). Any 2xx counts as delivered.
+             */
+            http_url?: string | null;
+            /**
+             * @description The secret the provider signs bounce and complaint callbacks with (the
+             *     Svix `whsec_...` signing secret for Resend; any string for `http`).
+             *     Write-only. Omit to keep the stored one.
+             */
+            inbound_secret?: string | null;
+            /** @description `smtp`, `resend` or `http`. */
+            kind: string;
+            /** @description `transactional` (auth mail), `broadcast` or `any` (default). */
+            purpose?: string | null;
+            /**
+             * @description API key, SMTP password, or the bearer token sent to an `http` provider.
+             *     Omit on update to keep the stored one — otherwise editing the From
+             *     address would silently wipe the credential.
              */
             secret?: string | null;
             smtp_host?: string | null;
@@ -1436,11 +2230,51 @@ export interface components {
             smtp_username?: string | null;
             status?: string | null;
         };
+        PutFormRequest: {
+            /** @description Default `public`. */
+            access?: string | null;
+            actions?: components["schemas"]["FormAction"][];
+            description?: string | null;
+            fields: components["schemas"]["FormField"][];
+            /**
+             * Format: int32
+             * @description 0 to 60, default 3.
+             */
+            min_fill_seconds?: number | null;
+            name: string;
+            /**
+             * Format: int32
+             * @description Days to keep submissions; omit to keep them.
+             */
+            retention_days?: number | null;
+            /** @description Default `active`. */
+            status?: string | null;
+        };
+        PutTemplateRequest: {
+            /**
+             * @description Plain text. For `verification`, `password_reset`, `email_change` and
+             *     `invitation` it must contain `{{token}}`, or the email would carry no code.
+             */
+            body_text: string;
+            /** @description One line. May use `{{placeholders}}`. */
+            subject: string;
+        };
+        QueuedNotification: {
+            /** Format: uuid */
+            id: string;
+            /** @description Always `pending`: delivery happens in the background. */
+            status: string;
+        };
         RefreshRequest: {
             refresh_token: string;
         };
         RegisterRequest: {
             email: string;
+            /**
+             * @description ACCESS-001: the code from an invitation. Required when the app's
+             *     `registration_mode` is `invite_only` or `waitlist`; optional when `open`.
+             */
+            invite_token?: string | null;
             /**
              * @description REGISTER-PROFILE-001: profile fields the app collects at signup (name,
              *     phone, preferences), written straight into the new membership's
@@ -1462,6 +2296,46 @@ export interface components {
             message: string;
             refresh_token?: string | null;
             token_type?: string | null;
+        };
+        /**
+         * @description ACCESS-001: who may create an account in an app. `open` is the historical
+         *     behaviour and the default.
+         * @enum {string}
+         */
+        RegistrationMode: "open" | "invite_only" | "waitlist" | "closed";
+        ReleaseRequest: {
+            /**
+             * Format: int64
+             * @description Release the first N in arrival order (up to 500). Use this or `ids`.
+             */
+            count?: number | null;
+            /**
+             * Format: int64
+             * @description 1 to 30, default 7.
+             */
+            expires_in_days?: number | null;
+            /** @description Release these entries. Use this or `count`. */
+            ids?: string[] | null;
+            /** @description Also release entries that never confirmed their address. Default false. */
+            include_unconfirmed?: boolean;
+            role?: null | components["schemas"]["MembershipRole"];
+            /**
+             * @description Default true. With false nothing is mailed and the codes come back in
+             *     the response, for apps that deliver them themselves.
+             */
+            send_email?: boolean | null;
+        };
+        ReleaseResponse: {
+            released: components["schemas"]["ReleasedEntry"][];
+        };
+        ReleasedEntry: {
+            email: string;
+            /** Format: uuid */
+            entry_id: string;
+            /** Format: uuid */
+            invitation_id: string;
+            /** @description Only when `send_email` was false. */
+            token?: string | null;
         };
         ResendVerificationEmailRequest: {
             email: string;
@@ -1496,6 +2370,23 @@ export interface components {
              */
             user_id?: string | null;
         };
+        SendNotificationRequest: {
+            /** @description Locale of the template; falls back to `en`. */
+            locale?: string | null;
+            /** @description `transactional` (default) or `broadcast`: which providers may carry it. */
+            purpose?: string | null;
+            /** @description Literal subject, with `text`. Alternative to `template`. */
+            subject?: string | null;
+            /** @description Name of a stored template. Alternative to `subject` + `text`. */
+            template?: string | null;
+            text?: string | null;
+            /** @description Recipient address. */
+            to: string;
+            /** @description Values for the template's `{{placeholders}}`. */
+            variables?: {
+                [key: string]: unknown;
+            };
+        };
         /** @enum {string} */
         SessionStatus: "active" | "revoked" | "compromised";
         SessionSummary: {
@@ -1512,6 +2403,88 @@ export interface components {
             last_seen_at: string;
             status: components["schemas"]["SessionStatus"];
             user_agent?: string | null;
+        };
+        SetSubscriptionRequest: {
+            subscribed: boolean;
+        };
+        SubmissionResponse: {
+            /** Format: date-time */
+            created_at: string;
+            email?: string | null;
+            /** Format: uuid */
+            id: string;
+            /** @description `new` | `read` | `replied` | `spam` | `archived`. */
+            status: string;
+            /** Format: uuid */
+            user_id?: string | null;
+            /** @description The values by field name, as validated. */
+            values: unknown;
+        };
+        SubmitFormRequest: {
+            /** @description A hidden input real people leave empty. Anything in it marks the post as spam. */
+            honeypot?: string | null;
+            /**
+             * Format: int64
+             * @description When the form was shown, in epoch milliseconds. Optional.
+             */
+            started_at?: number | null;
+            /** @description One entry per field, by name. */
+            values: {
+                [key: string]: unknown;
+            };
+        };
+        SubmitFormResponse: {
+            received: boolean;
+        };
+        SubscribeRequest: {
+            /** @description Where the address was collected, kept as the consent record. */
+            consent_source?: string | null;
+            /** @description Which privacy notice or wording the person agreed to. */
+            consent_version?: string | null;
+            email: string;
+            locale?: string | null;
+        };
+        SubscribeResponse: {
+            message: string;
+        };
+        SubscriberResponse: {
+            /** Format: date-time */
+            confirmed_at?: string | null;
+            /** Format: date-time */
+            consent_at: string;
+            consent_source?: string | null;
+            consent_version?: string | null;
+            email: string;
+            /** Format: uuid */
+            id: string;
+            locale?: string | null;
+            /** @description `pending` | `subscribed` | `unsubscribed`. */
+            status: string;
+            /** Format: date-time */
+            unsubscribed_at?: string | null;
+            /** Format: uuid */
+            user_id?: string | null;
+        };
+        SubscriptionStatusResponse: {
+            /** @description `subscribed` or `unsubscribed`. */
+            status: string;
+        };
+        SuppressionRequest: {
+            email: string;
+            /** @description `manual` (default), `bounce` or `complaint`. */
+            reason?: string | null;
+        };
+        SuppressionResponse: {
+            reason?: string | null;
+            suppressed: boolean;
+        };
+        TemplateResponse: {
+            body_text: string;
+            kind: string;
+            locale: string;
+            subject: string;
+            /** Format: date-time */
+            updated_at: string;
         };
         TestEmailRequest: {
             to: string;
@@ -1533,11 +2506,24 @@ export interface components {
             name?: string | null;
             password_policy?: null | components["schemas"]["PasswordPolicy"];
             redirect_urls?: string[] | null;
+            registration_mode?: null | components["schemas"]["RegistrationMode"];
             require_email_verification?: boolean | null;
             status?: string | null;
         };
+        UpdateListRequest: {
+            description?: string | null;
+            double_opt_in?: boolean | null;
+            name?: string | null;
+            /** @description `active` or `archived`. An archived list takes no new subscribers. */
+            status?: string | null;
+            unsubscribe_url?: string | null;
+        };
         UpdateRoleRequest: {
             role: components["schemas"]["MembershipRole"];
+        };
+        UpdateSubmissionRequest: {
+            /** @description `new`, `read`, `replied`, `spam` or `archived`. */
+            status: string;
         };
         UpdateUserStatus: {
             account_status: components["schemas"]["AccountStatus"];
@@ -1585,6 +2571,36 @@ export interface components {
         };
         VerifyEmailRequest: {
             token: string;
+        };
+        WaitlistEntryResponse: {
+            /** Format: date-time */
+            confirmed_at?: string | null;
+            /** Format: date-time */
+            consent_at: string;
+            consent_source?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            email: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            invited_at?: string | null;
+            locale?: string | null;
+            metadata: unknown;
+            /** @description `pending` (unconfirmed) | `confirmed` | `invited` | `joined`. */
+            status: string;
+        };
+        WaitlistStatsResponse: {
+            /** Format: int64 */
+            confirmed: number;
+            /** Format: int64 */
+            invited: number;
+            /** Format: int64 */
+            joined: number;
+            /** Format: int64 */
+            pending: number;
+            /** Format: int64 */
+            total: number;
         };
         WebhookResponse: {
             /** Format: uuid */
@@ -2268,7 +3284,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The app's email provider */
+            /** @description The app's primary (priority 0) email provider */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2284,7 +3300,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description App has no provider of its own (it uses the global one) */
+            /** @description App has no primary provider (it uses the global one) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2309,7 +3325,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Provider stored */
+            /** @description Primary provider stored */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2353,7 +3369,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Provider removed; the app falls back to the global mailer */
+            /** @description Primary provider removed */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -2367,7 +3383,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description App has no provider of its own */
+            /** @description App has no primary provider */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2415,7 +3431,1079 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description App has no provider of its own */
+            /** @description App has no primary provider */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_email_providers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The app's providers, in the order they are tried */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailProviderResponse"][];
+                };
+            };
+            /** @description Not platform admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_email_provider_by_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position in the failover order, 0 to 9 */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The provider at that position */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailProviderResponse"];
+                };
+            };
+            /** @description Not platform admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No provider at that position */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_email_provider_by_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position in the failover order, 0 to 9 */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutEmailProviderRequest"];
+            };
+        };
+        responses: {
+            /** @description Provider stored at that position */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailProviderResponse"];
+                };
+            };
+            /** @description Invalid provider configuration, priority out of range, or no encryption key configured */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description App not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_email_provider_by_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position in the failover order, 0 to 9 */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No provider at that position */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    receive_provider_event: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position of the provider that sends the callback */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        /** @description The provider's own payload: Resend (Svix-signed) or, for the http kind, `{type, email, permanent}` signed in `X-Gateward-Signature` */
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description Verified. Hard bounces and complaints suppress the address; anything else is acknowledged and ignored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad or missing signature, or no inbound secret stored for this provider */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such provider, or one that cannot call back (smtp) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    test_email_provider_by_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Position in the failover order, 0 to 9 */
+                priority: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Test message delivered */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestEmailResponse"];
+                };
+            };
+            /** @description Invalid address, or the provider rejected the message (error included) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No provider at that position */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_forms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The app's forms with their actions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormResponse"][];
+                };
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_form_admin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The form */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormResponse"];
+                };
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_form: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Lowercase letters, digits and hyphens, up to 40 */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutFormRequest"];
+            };
+        };
+        responses: {
+            /** @description Definition stored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormResponse"];
+                };
+            };
+            /** @description Invalid slug, fields, actions or settings */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description App not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_form: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Form and all its submissions erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_form_submissions: {
+        parameters: {
+            query?: {
+                /** @description Filter by status. */
+                status?: string | null;
+                /** @description 1 to 500, default 100. */
+                limit?: number | null;
+                offset?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionResponse"][];
+                };
+            };
+            /** @description Unknown status filter or page out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_form_submission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+                /** @description Submission ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One submission */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionResponse"];
+                };
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such submission in this form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_form_submission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+                /** @description Submission ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Submission erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such submission in this form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_form_submission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Form slug */
+                slug: string;
+                /** @description Submission ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSubmissionRequest"];
+            };
+        };
+        responses: {
+            /** @description Status updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionResponse"];
+                };
+            };
+            /** @description Unknown status */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no forms:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such submission in this form */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_invitations: {
+        parameters: {
+            query?: {
+                /** @description Filter by `pending`, `accepted` or `revoked`. */
+                status?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Most recent 200 invitations of the app */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"][];
+                };
+            };
+            /** @description Unknown status filter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no invitations:write on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_invitations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInvitationsRequest"];
+            };
+        };
+        responses: {
+            /** @description Invitations created; each carries its code once */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedInvitationResponse"][];
+                };
+            };
+            /** @description Empty or oversized batch, invalid email or expiry */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no invitations:write on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An address is already a member of the app */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    revoke_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Invitation ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Invitation revoked; its code stops working */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no invitations:write on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No pending invitation with that ID in this app */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resend_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Invitation ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New code and a fresh expiry; the old code stops working */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedInvitationResponse"];
+                };
+            };
+            /** @description Not platform admin, and no invitations:write on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No pending invitation with that ID in this app */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_mailing_lists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The app's lists with subscriber counts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResponse"][];
+                };
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_mailing_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateListRequest"];
+            };
+        };
+        responses: {
+            /** @description List created */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResponse"];
+                };
+            };
+            /** @description Invalid slug, name or unsubscribe_url */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The app already has a list with that slug */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_mailing_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List and all its subscribers erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such list */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_mailing_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateListRequest"];
+            };
+        };
+        responses: {
+            /** @description List updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResponse"];
+                };
+            };
+            /** @description Invalid name, status or unsubscribe_url */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such list */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    broadcast_to_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BroadcastRequest"];
+            };
+        };
+        responses: {
+            /** @description Queued for the worker; every message carries the recipient's unsubscribe link */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastResponse"];
+                };
+            };
+            /** @description Unknown template, neither or both of template and subject+text, or too many recipients for one call */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No active list with that slug */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The app's daily recipient cap would be exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_subscribers: {
+        parameters: {
+            query?: {
+                /** @description Filter by `pending`, `subscribed` or `unsubscribed`. */
+                status?: string | null;
+                /** @description 1 to 500, default 100. */
+                limit?: number | null;
+                offset?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subscribers in arrival order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriberResponse"][];
+                };
+            };
+            /** @description Unknown status filter or page out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such list */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_subscriber: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description List slug */
+                slug: string;
+                /** @description Subscriber ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subscriber erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such subscriber on this list */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2536,6 +4624,538 @@ export interface operations {
             };
             /** @description Would leave the app without an app_admin */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_notification_templates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The app's templates */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponse"][];
+                };
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_notification_template: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Auth kind to override, or the name an app sends by */
+                kind: string;
+                /** @description `en`, `es-MX`... Auth mail uses `en` */
+                locale: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Template stored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponse"];
+                };
+            };
+            /** @description Invalid name, subject or body, or an auth template without {{token}} */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description App not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_notification_template: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Template kind */
+                kind: string;
+                /** @description Template locale */
+                locale: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Template removed; auth mail goes back to the built-in wording */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such template */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_notifications: {
+        parameters: {
+            query?: {
+                /** @description Filter by `pending`, `sending`, `sent` or `failed`. */
+                status?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The 100 most recent messages the Core sent for the app, auth mail included */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"][];
+                };
+            };
+            /** @description Unknown status filter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    send_notification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendNotificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Queued; the worker delivers it through the app's providers */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueuedNotification"];
+                };
+            };
+            /** @description Invalid address, unknown template, or neither template nor subject and text */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description More than 120 notifications a minute for this app */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_notification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Notification ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One message and its delivery state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Not platform admin, and no notifications:send on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such message in this app */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    check_suppression: {
+        parameters: {
+            query: {
+                email: string;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Whether broadcasts to that address are blocked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuppressionResponse"];
+                };
+            };
+            /** @description Invalid address */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    add_suppression: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuppressionRequest"];
+            };
+        };
+        responses: {
+            /** @description Address suppressed; only its hash is kept */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuppressionResponse"];
+                };
+            };
+            /** @description Invalid address or reason */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description App not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    remove_suppression: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuppressionRequest"];
+            };
+        };
+        responses: {
+            /** @description Address can receive broadcasts again */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no lists:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description That address was not suppressed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_waitlist: {
+        parameters: {
+            query?: {
+                /** @description Filter by `pending`, `confirmed`, `invited` or `joined`. */
+                status?: string | null;
+                /** @description 1 to 500, default 100. */
+                limit?: number | null;
+                offset?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entries in arrival order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistEntryResponse"][];
+                };
+            };
+            /** @description Unknown status filter or page out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    release_waitlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReleaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Entries released; each got an invitation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseResponse"];
+                };
+            };
+            /** @description Neither or both of count and ids, or a value out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description App not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    waitlist_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entries by status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistStatsResponse"];
+                };
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_waitlist_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Entry ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entry erased, with any invitation still pending for it */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such entry in this app */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3266,6 +5886,74 @@ export interface operations {
             };
         };
     };
+    get_my_subscriptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The app's active lists and the caller's state on each */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MySubscription"][];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    set_my_subscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description The caller's new state on the list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStatusResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No active list with that slug */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     platform_login: {
         parameters: {
             query?: never;
@@ -3367,8 +6055,15 @@ export interface operations {
                     "application/json": components["schemas"]["RegisterResponse"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error, or an invalid or expired invite_token */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description registration_mode keeps the door shut: `registration is closed`, `registration requires an invitation` or `registration is by waitlist` */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3714,6 +6409,97 @@ export interface operations {
             };
         };
     };
+    get_form: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App the form belongs to */
+                "X-Gateward-App-Id": string;
+            };
+            path: {
+                /** @description Form slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The fields to draw. The team's addresses and actions are never included */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicFormResponse"];
+                };
+            };
+            /** @description No active form with that slug */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    submit_form: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App the form belongs to */
+                "X-Gateward-App-Id": string;
+            };
+            path: {
+                /** @description Form slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitFormRequest"];
+            };
+        };
+        responses: {
+            /** @description Received. A post held as spam gets the same reply */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitFormResponse"];
+                };
+            };
+            /** @description `fields` names each value that failed, or the address is disposable */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The form needs a signed-in user */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No active form with that slug */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     list_identity_pools: {
         parameters: {
             query?: {
@@ -3817,6 +6603,135 @@ export interface operations {
             };
             /** @description System pool, or has dependent apps/users */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    confirm_subscription: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App the list belongs to */
+                "X-Gateward-App-Id": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Subscribed (repeating it is harmless) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStatusResponse"];
+                };
+            };
+            /** @description Invalid or expired code */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unsubscribe_from_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unsubscribe token from a broadcast */
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unsubscribed (repeating it is harmless) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStatusResponse"];
+                };
+            };
+            /** @description Unknown token */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    subscribe_to_list: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App the list belongs to */
+                "X-Gateward-App-Id": string;
+            };
+            path: {
+                /** @description List slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted. The reply is the same whether or not the address was already subscribed */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscribeResponse"];
+                };
+            };
+            /** @description Invalid or disposable address */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No active list with that slug */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4012,6 +6927,95 @@ export interface operations {
             };
             /** @description No membership in the caller's app */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    join_waitlist: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App whose waiting list this joins */
+                "X-Gateward-App-Id": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinWaitlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted. The reply is the same whether or not the address was already listed */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinWaitlistResponse"];
+                };
+            };
+            /** @description Invalid or disposable address, or invalid metadata */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The app does not run a waiting list: `waitlist is not enabled` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    confirm_waitlist: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description App whose waiting list this confirms */
+                "X-Gateward-App-Id": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmWaitlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Place confirmed (repeating it is harmless) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfirmWaitlistResponse"];
+                };
+            };
+            /** @description Invalid or expired code */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limited */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

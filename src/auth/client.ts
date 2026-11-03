@@ -17,6 +17,18 @@ import {
   type ListMembersQuery,
   type MemberPage,
 } from "../core/members.js";
+import {
+  confirmWaitlist,
+  joinWaitlist,
+  type JoinWaitlistOptions,
+} from "../core/access.js";
+import { getForm, submitForm, type SubmitFormOptions } from "../core/forms.js";
+import {
+  confirmSubscription,
+  subscribe,
+  unsubscribe,
+  type SubscribeOptions,
+} from "../core/messaging.js";
 import { AuthSession, type SessionOptions } from "../core/session.js";
 import type { TokenSet } from "../core/storage.js";
 import type {
@@ -25,6 +37,8 @@ import type {
   ForgotPasswordResponse,
   MembershipResponse,
   MembershipRole,
+  MySubscription,
+  PublicForm,
   RegisterResponse,
   ResendVerificationEmailResponse,
   SessionSummary,
@@ -187,7 +201,13 @@ export class GatewardAuth extends AuthSession {
   async register(
     email: string,
     password: string,
-    opts: { metadata?: Record<string, unknown> } = {},
+    opts: {
+      metadata?: Record<string, unknown>;
+      /** The code from an invitation. Required when the app's
+       *  `registration_mode` is `invite_only` or `waitlist`; with it the
+       *  address counts as verified and the user is logged in at once. */
+      inviteToken?: string;
+    } = {},
   ): Promise<RegisterResponse> {
     await this.guardEnvironment();
     const res = await this.http.request<RegisterResponse>(
@@ -198,12 +218,90 @@ export class GatewardAuth extends AuthSession {
           email,
           password,
           ...(opts.metadata ? { metadata: opts.metadata } : {}),
+          ...(opts.inviteToken ? { invite_token: opts.inviteToken } : {}),
         },
       },
     );
     const tokens = tokensOf(res);
     if (tokens) await this.persist(tokens);
     return res;
+  }
+
+  /** Join the app's waiting list (apps in `waitlist` or `invite_only` mode).
+   *  Resolves the same whether or not the address was already listed; the
+   *  person must still confirm from their inbox with {@link confirmWaitlist}. */
+  joinWaitlist(email: string, opts: JoinWaitlistOptions = {}): Promise<void> {
+    return joinWaitlist(this.http, email, opts);
+  }
+
+  /** Confirm a waiting-list place with the emailed code. */
+  confirmWaitlist(token: string): Promise<void> {
+    return confirmWaitlist(this.http, token);
+  }
+
+  /** Subscribe an address to one of the app's mailing lists. No account
+   *  needed. On a double opt-in list the person confirms from their inbox with
+   *  {@link confirmSubscription}. */
+  subscribeToList(
+    list: string,
+    email: string,
+    opts: SubscribeOptions = {},
+  ): Promise<void> {
+    return subscribe(this.http, list, email, opts);
+  }
+
+  /** Confirm a subscription with the emailed code. */
+  confirmSubscription(token: string): Promise<void> {
+    return confirmSubscription(this.http, token);
+  }
+
+  /** Leave a list with the token every broadcast carries. No login needed. */
+  unsubscribeFromList(token: string): Promise<void> {
+    return unsubscribe(this.http, token);
+  }
+
+  /** The app's lists and the signed-in user's state on each
+   *  (`subscribed`, `pending`, `unsubscribed` or `none`). */
+  listSubscriptions(): Promise<MySubscription[]> {
+    return this.authedRequest<MySubscription[]>("GET", "/v1/auth/me/subscriptions");
+  }
+
+  /** Subscribe or unsubscribe the signed-in user. A verified account needs no
+   *  confirmation email. */
+  async setSubscription(list: string, subscribed: boolean): Promise<void> {
+    await this.authedRequest<unknown>("PUT", `/v1/auth/me/subscriptions/${list}`, {
+      body: { subscribed },
+    });
+  }
+
+  /** A contact form's fields, so the app can draw it. The Core validates the
+   *  post regardless; this just saves guessing the shape. */
+  getForm(slug: string): Promise<PublicForm> {
+    return getForm(this.http, slug);
+  }
+
+  /** Post a form. Sent as the signed-in user when there is a session (needed
+   *  by forms with `access: "authenticated"`); pass `anonymous: true` to send
+   *  without it. A rejected value throws a {@link GatewardError} whose
+   *  `fieldErrors` names every failing field. */
+  async submitForm(
+    slug: string,
+    values: Record<string, string | boolean>,
+    opts: Omit<SubmitFormOptions, "bearer"> & { anonymous?: boolean } = {},
+  ): Promise<void> {
+    const { anonymous, ...rest } = opts;
+    let bearer: string | undefined;
+    if (!anonymous) {
+      try {
+        bearer = await this.getAccessToken();
+      } catch {
+        bearer = undefined;
+      }
+    }
+    return submitForm(this.http, slug, values, {
+      ...rest,
+      ...(bearer ? { bearer } : {}),
+    });
   }
 
   /** Log in and persist the returned token pair. */

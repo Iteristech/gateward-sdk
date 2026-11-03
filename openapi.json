@@ -979,7 +979,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The app's email provider",
+            "description": "The app's primary (priority 0) email provider",
             "content": {
               "application/json": {
                 "schema": {
@@ -992,7 +992,7 @@
             "description": "Not platform admin"
           },
           "404": {
-            "description": "App has no provider of its own (it uses the global one)"
+            "description": "App has no primary provider (it uses the global one)"
           }
         },
         "security": [
@@ -1005,7 +1005,7 @@
         "tags": [
           "email"
         ],
-        "summary": "Idempotent upsert: an app has at most one provider, so PUT reads better\nthan juggling POST-then-PATCH for something with a single instance.",
+        "summary": "Idempotent upsert: PUT reads better than juggling POST-then-PATCH for a\nprovider addressed by its position.",
         "operationId": "put_email_provider",
         "parameters": [
           {
@@ -1031,7 +1031,7 @@
         },
         "responses": {
           "200": {
-            "description": "Provider stored",
+            "description": "Primary provider stored",
             "content": {
               "application/json": {
                 "schema": {
@@ -1075,13 +1075,13 @@
         ],
         "responses": {
           "204": {
-            "description": "Provider removed; the app falls back to the global mailer"
+            "description": "Primary provider removed"
           },
           "403": {
             "description": "Not platform admin"
           },
           "404": {
-            "description": "App has no provider of its own"
+            "description": "App has no primary provider"
           }
         },
         "security": [
@@ -1138,12 +1138,1519 @@
             "description": "Not platform admin"
           },
           "404": {
-            "description": "App has no provider of its own"
+            "description": "App has no primary provider"
           }
         },
         "security": [
           {
             "bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/email-providers": {
+      "get": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "list_email_providers",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The app's providers, in the order they are tried",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailProviderResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/email-providers/{priority}": {
+      "get": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "get_email_provider_by_priority",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position in the failover order, 0 to 9",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The provider at that position",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProviderResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin"
+          },
+          "404": {
+            "description": "No provider at that position"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "put_email_provider_by_priority",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position in the failover order, 0 to 9",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutEmailProviderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Provider stored at that position",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid provider configuration, priority out of range, or no encryption key configured"
+          },
+          "403": {
+            "description": "Not platform admin"
+          },
+          "404": {
+            "description": "App not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "delete_email_provider_by_priority",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position in the failover order, 0 to 9",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Provider removed"
+          },
+          "403": {
+            "description": "Not platform admin"
+          },
+          "404": {
+            "description": "No provider at that position"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/email-providers/{priority}/events": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "receive_provider_event",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position of the provider that sends the callback",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The provider's own payload: Resend (Svix-signed) or, for the http kind, `{type, email, permanent}` signed in `X-Gateward-Signature`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Verified. Hard bounces and complaints suppress the address; anything else is acknowledged and ignored"
+          },
+          "401": {
+            "description": "Bad or missing signature, or no inbound secret stored for this provider"
+          },
+          "404": {
+            "description": "No such provider, or one that cannot call back (smtp)"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/email-providers/{priority}/test": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "operationId": "test_email_provider_by_priority",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "path",
+            "description": "Position in the failover order, 0 to 9",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Test message delivered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestEmailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address, or the provider rejected the message (error included)"
+          },
+          "403": {
+            "description": "Not platform admin"
+          },
+          "404": {
+            "description": "No provider at that position"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/forms": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "list_forms",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The app's forms with their actions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/forms/{slug}": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "get_form_admin",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The form",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "forms"
+        ],
+        "summary": "Idempotent upsert of the whole definition: a form is small and edited as a\nunit, and a partial PATCH of a fields array invites half-applied edits.",
+        "operationId": "put_form",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Lowercase letters, digits and hyphens, up to 40",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutFormRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Definition stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid slug, fields, actions or settings"
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "App not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "delete_form",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Form and all its submissions erased"
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/forms/{slug}/submissions": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "list_form_submissions",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by status.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "1 to 500, default 100.",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubmissionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter or page out of range"
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/forms/{slug}/submissions/{id}": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "get_form_submission",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Submission ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such submission in this form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "delete_form_submission",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Submission ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Submission erased"
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such submission in this form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "update_form_submission",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Submission ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubmissionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status"
+          },
+          "403": {
+            "description": "Not platform admin, and no forms:manage on this app"
+          },
+          "404": {
+            "description": "No such submission in this form"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/invitations": {
+      "get": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "list_invitations",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by `pending`, `accepted` or `revoked`.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Most recent 200 invitations of the app",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter"
+          },
+          "403": {
+            "description": "Not platform admin, and no invitations:write on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "create_invitations",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Invitations created; each carries its code once",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreatedInvitationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty or oversized batch, invalid email or expiry"
+          },
+          "403": {
+            "description": "Not platform admin, and no invitations:write on this app"
+          },
+          "409": {
+            "description": "An address is already a member of the app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/invitations/{id}": {
+      "delete": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "revoke_invitation",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Invitation ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Invitation revoked; its code stops working"
+          },
+          "403": {
+            "description": "Not platform admin, and no invitations:write on this app"
+          },
+          "404": {
+            "description": "No pending invitation with that ID in this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/invitations/{id}/resend": {
+      "post": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "resend_invitation",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Invitation ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New code and a fresh expiry; the old code stops working",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedInvitationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no invitations:write on this app"
+          },
+          "404": {
+            "description": "No pending invitation with that ID in this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/lists": {
+      "get": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "list_mailing_lists",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The app's lists with subscriber counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ListResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "create_mailing_list",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "List created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid slug, name or unsubscribe_url"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "409": {
+            "description": "The app already has a list with that slug"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/lists/{slug}": {
+      "delete": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "delete_mailing_list",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "List and all its subscribers erased"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "No such list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "update_mailing_list",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "List updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, status or unsubscribe_url"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "No such list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/lists/{slug}/broadcasts": {
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "broadcast_to_list",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadcastRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Queued for the worker; every message carries the recipient's unsubscribe link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown template, neither or both of template and subject+text, or too many recipients for one call"
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          },
+          "404": {
+            "description": "No active list with that slug"
+          },
+          "429": {
+            "description": "The app's daily recipient cap would be exceeded"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/lists/{slug}/subscribers": {
+      "get": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "list_subscribers",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by `pending`, `subscribed` or `unsubscribed`.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "1 to 500, default 100.",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscribers in arrival order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriberResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter or page out of range"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "No such list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/lists/{slug}/subscribers/{id}": {
+      "delete": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "delete_subscriber",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Subscriber ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Subscriber erased"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "No such subscriber on this list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
           }
         ]
       }
@@ -1307,6 +2814,753 @@
           },
           "409": {
             "description": "Would leave the app without an app_admin"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/notification-templates": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "list_notification_templates",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The app's templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/notification-templates/{kind}/{locale}": {
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "put_notification_template",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "description": "Auth kind to override, or the name an app sends by",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "path",
+            "description": "`en`, `es-MX`... Auth mail uses `en`",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutTemplateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Template stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, subject or body, or an auth template without {{token}}"
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          },
+          "404": {
+            "description": "App not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "delete_notification_template",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "description": "Template kind",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "path",
+            "description": "Template locale",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Template removed; auth mail goes back to the built-in wording"
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          },
+          "404": {
+            "description": "No such template"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/notifications": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "list_notifications",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by `pending`, `sending`, `sent` or `failed`.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The 100 most recent messages the Core sent for the app, auth mail included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter"
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "send_notification",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendNotificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Queued; the worker delivers it through the app's providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueuedNotification"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address, unknown template, or neither template nor subject and text"
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          },
+          "429": {
+            "description": "More than 120 notifications a minute for this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/notifications/{id}": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "get_notification",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Notification ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One message and its delivery state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no notifications:send on this app"
+          },
+          "404": {
+            "description": "No such message in this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/suppressions": {
+      "get": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "check_suppression",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether broadcasts to that address are blocked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuppressionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "add_suppression",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuppressionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Address suppressed; only its hash is kept",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuppressionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address or reason"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "App not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "remove_suppression",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuppressionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Address can receive broadcasts again"
+          },
+          "403": {
+            "description": "Not platform admin, and no lists:manage on this app"
+          },
+          "404": {
+            "description": "That address was not suppressed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist": {
+      "get": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "list_waitlist",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by `pending`, `confirmed`, `invited` or `joined`.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "1 to 500, default 100.",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entries in arrival order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WaitlistEntryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter or page out of range"
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist/release": {
+      "post": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "release_waitlist",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Entries released; each got an invitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Neither or both of count and ids, or a value out of range"
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          },
+          "404": {
+            "description": "App not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist/stats": {
+      "get": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "waitlist_stats",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entries by status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistStatsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist/{id}": {
+      "delete": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "delete_waitlist_entry",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Entry ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Entry erased, with any invitation still pending for it"
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          },
+          "404": {
+            "description": "No such entry in this app"
           }
         },
         "security": [
@@ -2172,6 +4426,89 @@
         ]
       }
     },
+    "/v1/auth/me/subscriptions": {
+      "get": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "get_my_subscriptions",
+        "responses": {
+          "200": {
+            "description": "The app's active lists and the caller's state on each",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MySubscription"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me/subscriptions/{slug}": {
+      "put": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "set_my_subscription",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The caller's new state on the list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "No active list with that slug"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/v1/auth/platform-login": {
       "post": {
         "tags": [
@@ -2292,7 +4629,10 @@
             }
           },
           "400": {
-            "description": "Validation error"
+            "description": "Validation error, or an invalid or expired invite_token"
+          },
+          "403": {
+            "description": "registration_mode keeps the door shut: `registration is closed`, `registration requires an invitation` or `registration is by waitlist`"
           },
           "429": {
             "description": "Rate limited"
@@ -2746,6 +5086,120 @@
         ]
       }
     },
+    "/v1/forms/{slug}": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "get_form",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App the form belongs to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fields to draw. The team's addresses and actions are never included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFormResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active form with that slug"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/v1/forms/{slug}/submissions": {
+      "post": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "submit_form",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Form slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App the form belongs to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitFormRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Received. A post held as spam gets the same reply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitFormResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`fields` names each value that failed, or the address is disposable"
+          },
+          "401": {
+            "description": "The form needs a signed-in user"
+          },
+          "404": {
+            "description": "No active form with that slug"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/v1/identity-pools": {
       "get": {
         "tags": [
@@ -2865,6 +5319,158 @@
           {
             "bearer": []
           }
+        ]
+      }
+    },
+    "/v1/lists/confirm": {
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "confirm_subscription",
+        "parameters": [
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App the list belongs to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Subscribed (repeating it is harmless)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired code"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/v1/lists/unsubscribe/{token}": {
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "unsubscribe_from_list",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "The unsubscribe token from a broadcast",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unsubscribed (repeating it is harmless)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown token"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/v1/lists/{slug}/subscribe": {
+      "post": {
+        "tags": [
+          "lists"
+        ],
+        "operationId": "subscribe_to_list",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "List slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App the list belongs to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted. The reply is the same whether or not the address was already subscribed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or disposable address"
+          },
+          "404": {
+            "description": "No active list with that slug"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
         ]
       }
     },
@@ -3081,6 +5687,109 @@
           }
         ]
       }
+    },
+    "/v1/waitlist": {
+      "post": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "join_waitlist",
+        "parameters": [
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App whose waiting list this joins",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinWaitlistRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted. The reply is the same whether or not the address was already listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinWaitlistResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or disposable address, or invalid metadata"
+          },
+          "403": {
+            "description": "The app does not run a waiting list: `waitlist is not enabled`"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/v1/waitlist/confirm": {
+      "post": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "confirm_waitlist",
+        "parameters": [
+          {
+            "name": "X-Gateward-App-Id",
+            "in": "header",
+            "description": "App whose waiting list this confirms",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmWaitlistRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Place confirmed (repeating it is harmless)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmWaitlistResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired code"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
     }
   },
   "components": {
@@ -3280,6 +5989,7 @@
           "environment",
           "identity_mode",
           "require_email_verification",
+          "registration_mode",
           "password_policy"
         ],
         "properties": {
@@ -3301,6 +6011,10 @@
             "$ref": "#/components/schemas/PasswordPolicy",
             "description": "The exact rules `register`, `reset-password` and `change-password` will\napply, so a client can validate before the round-trip."
           },
+          "registration_mode": {
+            "$ref": "#/components/schemas/RegistrationMode",
+            "description": "ACCESS-001: `open` | `invite_only` | `waitlist` | `closed`. A client reads\nit to decide which screen to show before the user types anything."
+          },
           "require_email_verification": {
             "type": "boolean",
             "description": "Whether `POST /v1/auth/register` leaves the account email-gated. When\nfalse, registration returns tokens directly."
@@ -3320,7 +6034,8 @@
           "allowed_origins",
           "redirect_urls",
           "password_policy",
-          "require_email_verification"
+          "require_email_verification",
+          "registration_mode"
         ],
         "properties": {
           "allowed_origins": {
@@ -3359,11 +6074,65 @@
               "type": "string"
             }
           },
+          "registration_mode": {
+            "$ref": "#/components/schemas/RegistrationMode"
+          },
           "require_email_verification": {
             "type": "boolean"
           },
           "status": {
             "type": "string"
+          }
+        }
+      },
+      "BroadcastRequest": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "template": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name of a stored template. Alternative to `subject` + `text`."
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "variables": {
+            "type": "object",
+            "description": "Values for `{{placeholders}}`, in addition to the per-person\n`{{email}}` and `{{unsubscribe_url}}`.",
+            "additionalProperties": {},
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BroadcastResponse": {
+        "type": "object",
+        "required": [
+          "queued"
+        ],
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Messages queued, one per active subscriber who is not suppressed."
           }
         }
       },
@@ -3468,6 +6237,40 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "ConfirmSubscriptionRequest": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmWaitlistRequest": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The code from the confirmation email."
+          }
+        }
+      },
+      "ConfirmWaitlistResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
           }
         }
       },
@@ -3625,6 +6428,17 @@
               "type": "string"
             }
           },
+          "registration_mode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RegistrationMode",
+                "description": "ACCESS-001. Omitted means `open`."
+              }
+            ]
+          },
           "require_email_verification": {
             "type": [
               "boolean",
@@ -3665,6 +6479,71 @@
           }
         }
       },
+      "CreateInvitationsRequest": {
+        "type": "object",
+        "required": [
+          "invitations"
+        ],
+        "properties": {
+          "expires_in_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "1 to 30, default 7."
+          },
+          "invitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvitationInput"
+            },
+            "description": "1 to 100 invitations. The batch is atomic: one bad entry rejects all."
+          },
+          "send_email": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Default true. Pass false when the app delivers the code itself."
+          }
+        }
+      },
+      "CreateListRequest": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "double_opt_in": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Default true."
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Lowercase letters, digits and hyphens, up to 40."
+          },
+          "unsubscribe_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "CreateWebhookRequest": {
         "type": "object",
         "required": [
@@ -3688,6 +6567,26 @@
             "type": "string"
           }
         }
+      },
+      "CreatedInvitationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InvitationResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "token"
+            ],
+            "properties": {
+              "token": {
+                "type": "string",
+                "description": "Pass it as `invite_token` to `POST /v1/auth/register`."
+              }
+            }
+          }
+        ],
+        "description": "The code is returned **once**, like an API key: only its hash is stored."
       },
       "CreatedWebhookResponse": {
         "allOf": [
@@ -3824,9 +6723,12 @@
         "type": "object",
         "required": [
           "app_id",
+          "priority",
           "kind",
+          "purpose",
           "from_address",
           "has_secret",
+          "has_inbound_secret",
           "status",
           "updated_at"
         ],
@@ -3844,12 +6746,23 @@
               "null"
             ]
           },
+          "has_inbound_secret": {
+            "type": "boolean",
+            "description": "Whether a secret is stored for verifying bounce and complaint callbacks."
+          },
           "has_secret": {
             "type": "boolean",
             "description": "Whether a credential is stored. The credential itself is never\nreturned, in any shape — not masked, not truncated."
           },
+          "http_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "kind": {
-            "type": "string"
+            "type": "string",
+            "description": "`smtp`, `resend` or `http`."
           },
           "last_error": {
             "type": [
@@ -3871,6 +6784,15 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of use, 0 first. The singular `/email-provider` endpoints are\npriority 0."
+          },
+          "purpose": {
+            "type": "string",
+            "description": "`transactional`, `broadcast` or `any`."
           },
           "smtp_host": {
             "type": [
@@ -3987,6 +6909,16 @@
           }
         }
       },
+      "FieldKind": {
+        "type": "string",
+        "enum": [
+          "text",
+          "email",
+          "textarea",
+          "select",
+          "checkbox"
+        ]
+      },
       "ForgotPasswordRequest": {
         "type": "object",
         "required": [
@@ -4006,6 +6938,214 @@
         "properties": {
           "message": {
             "type": "string"
+          }
+        }
+      },
+      "FormAction": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Mail the submission to the team. Up to 5 addresses.",
+            "required": [
+              "to",
+              "type"
+            ],
+            "properties": {
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "notify_team"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Mail the submitter a stored template, filled with their values. Needs\nan email field.",
+            "required": [
+              "template",
+              "type"
+            ],
+            "properties": {
+              "locale": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "template": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "autoreply"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Subscribe the submitter to a mailing list. With `consent_field`, only\nwhen that checkbox came ticked: ticking is the consent.",
+            "required": [
+              "list",
+              "type"
+            ],
+            "properties": {
+              "consent_field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "list": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "subscribe"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Put the submitter on the waiting list (the app must run one). With\n`consent_field`, only when that checkbox came ticked.",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "consent_field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "waitlist"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "What happens after a submission is stored, in order."
+      },
+      "FormField": {
+        "type": "object",
+        "description": "One input of a form. The Core validates against this; the SDK hands it to\nthe app so it can draw the form and check early, but only the server's\nverdict counts.",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Text for the app to show; the Core does not interpret it."
+          },
+          "max_length": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Characters, for text-like fields. Default 2000, at most 10000.",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "`a-z`, `0-9` and underscore, starting with a letter."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "`select` only: the allowed values."
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "$ref": "#/components/schemas/FieldKind"
+          }
+        }
+      },
+      "FormResponse": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "fields",
+          "actions",
+          "access",
+          "min_fill_seconds",
+          "status",
+          "new_submissions",
+          "created_at"
+        ],
+        "properties": {
+          "access": {
+            "type": "string",
+            "description": "`public` or `authenticated`."
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormAction"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            }
+          },
+          "min_fill_seconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "new_submissions": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Submissions still marked `new`."
+          },
+          "retention_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "`active` or `archived`. An archived form stops accepting posts."
           }
         }
       },
@@ -4177,6 +7317,121 @@
           }
         }
       },
+      "InvitationInput": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MembershipRole",
+                "description": "Defaults to `member`."
+              }
+            ]
+          }
+        }
+      },
+      "InvitationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "email",
+          "role",
+          "status",
+          "expires_at",
+          "created_at"
+        ],
+        "properties": {
+          "accepted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "app_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invited_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MembershipRole"
+          },
+          "status": {
+            "type": "string",
+            "description": "`pending` | `accepted` | `revoked`."
+          }
+        }
+      },
+      "JoinWaitlistRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "consent_source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the address was collected, kept as the consent record."
+          },
+          "email": {
+            "type": "string"
+          },
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Language for later emails, e.g. `es-MX`."
+          },
+          "metadata": {
+            "description": "Free-form object the app wants kept with the entry (referrer, interest).\nAt most 4 KB."
+          }
+        }
+      },
+      "JoinWaitlistResponse": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "Jwk": {
         "type": "object",
         "description": "JWK as published in the JWKS endpoint. RFC 7517 §4.\n`crv = \"P-256\"`, `kty = \"EC\"`, `alg = \"ES256\"` for ES256 keys.",
@@ -4322,6 +7577,63 @@
               "null"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "ListResponse": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "double_opt_in",
+          "status",
+          "subscribed",
+          "pending",
+          "unsubscribed",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "double_opt_in": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pending": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "`active` | `archived`."
+          },
+          "subscribed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unsubscribe_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Template for the unsubscribe link in broadcasts; `{token}` is replaced."
+          },
+          "unsubscribed": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -4525,6 +7837,98 @@
           "app_admin"
         ]
       },
+      "MySubscription": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "status"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "`subscribed` | `pending` | `unsubscribed` | `none`."
+          }
+        }
+      },
+      "NotificationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "source",
+          "kind",
+          "to_email",
+          "subject",
+          "status",
+          "attempts",
+          "purpose",
+          "created_at"
+        ],
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "description": "`auth` (sent inline by the Core), `api` or `broadcast`."
+          },
+          "status": {
+            "type": "string",
+            "description": "`pending` | `sending` | `sent` | `failed`."
+          },
+          "subject": {
+            "type": "string"
+          },
+          "to_email": {
+            "type": "string"
+          }
+        }
+      },
       "OpenIdConfiguration": {
         "type": "object",
         "required": [
@@ -4649,6 +8053,45 @@
           }
         }
       },
+      "PublicFormResponse": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "fields",
+          "access",
+          "min_fill_seconds"
+        ],
+        "properties": {
+          "access": {
+            "type": "string",
+            "description": "`public` or `authenticated`."
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            }
+          },
+          "min_fill_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Seconds a person is expected to take; a faster post is held as spam."
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
       "PutEmailProviderRequest": {
         "type": "object",
         "required": [
@@ -4665,16 +8108,37 @@
               "null"
             ]
           },
+          "http_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`http` only: where the Core POSTs each message as JSON (`from`, `to`,\n`subject`, `text`, `kind`, `token`). Any 2xx counts as delivered."
+          },
+          "inbound_secret": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The secret the provider signs bounce and complaint callbacks with (the\nSvix `whsec_...` signing secret for Resend; any string for `http`).\nWrite-only. Omit to keep the stored one."
+          },
           "kind": {
             "type": "string",
-            "description": "`smtp` or `resend`."
+            "description": "`smtp`, `resend` or `http`."
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`transactional` (auth mail), `broadcast` or `any` (default)."
           },
           "secret": {
             "type": [
               "string",
               "null"
             ],
-            "description": "API key or SMTP password. Omit on update to keep the stored one —\notherwise editing the From address would silently wipe the credential."
+            "description": "API key, SMTP password, or the bearer token sent to an `http` provider.\nOmit on update to keep the stored one — otherwise editing the From\naddress would silently wipe the credential."
           },
           "smtp_host": {
             "type": [
@@ -4710,6 +8174,100 @@
           }
         }
       },
+      "PutFormRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "fields"
+        ],
+        "properties": {
+          "access": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Default `public`."
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormAction"
+            }
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            }
+          },
+          "min_fill_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "0 to 60, default 3."
+          },
+          "name": {
+            "type": "string"
+          },
+          "retention_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Days to keep submissions; omit to keep them."
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Default `active`."
+          }
+        }
+      },
+      "PutTemplateRequest": {
+        "type": "object",
+        "required": [
+          "subject",
+          "body_text"
+        ],
+        "properties": {
+          "body_text": {
+            "type": "string",
+            "description": "Plain text. For `verification`, `password_reset`, `email_change` and\n`invitation` it must contain `{{token}}`, or the email would carry no code."
+          },
+          "subject": {
+            "type": "string",
+            "description": "One line. May use `{{placeholders}}`."
+          }
+        }
+      },
+      "QueuedNotification": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "description": "Always `pending`: delivery happens in the background."
+          }
+        }
+      },
       "RefreshRequest": {
         "type": "object",
         "required": [
@@ -4730,6 +8288,13 @@
         "properties": {
           "email": {
             "type": "string"
+          },
+          "invite_token": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ACCESS-001: the code from an invitation. Required when the app's\n`registration_mode` is `invite_only` or `waitlist`; optional when `open`."
           },
           "metadata": {
             "description": "REGISTER-PROFILE-001: profile fields the app collects at signup (name,\nphone, preferences), written straight into the new membership's\n`local_metadata`. Without this an app has to follow every registration\nwith a second authenticated call just to store the name it already had."
@@ -4773,6 +8338,112 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "RegistrationMode": {
+        "type": "string",
+        "description": "ACCESS-001: who may create an account in an app. `open` is the historical\nbehaviour and the default.",
+        "enum": [
+          "open",
+          "invite_only",
+          "waitlist",
+          "closed"
+        ]
+      },
+      "ReleaseRequest": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Release the first N in arrival order (up to 500). Use this or `ids`."
+          },
+          "expires_in_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "1 to 30, default 7."
+          },
+          "ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Release these entries. Use this or `count`."
+          },
+          "include_unconfirmed": {
+            "type": "boolean",
+            "description": "Also release entries that never confirmed their address. Default false."
+          },
+          "role": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MembershipRole",
+                "description": "Role the invitations grant. Default `member`."
+              }
+            ]
+          },
+          "send_email": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Default true. With false nothing is mailed and the codes come back in\nthe response, for apps that deliver them themselves."
+          }
+        }
+      },
+      "ReleaseResponse": {
+        "type": "object",
+        "required": [
+          "released"
+        ],
+        "properties": {
+          "released": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReleasedEntry"
+            }
+          }
+        }
+      },
+      "ReleasedEntry": {
+        "type": "object",
+        "required": [
+          "entry_id",
+          "email",
+          "invitation_id"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "entry_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invitation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "token": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Only when `send_email` was false."
           }
         }
       },
@@ -4864,6 +8535,60 @@
           }
         }
       },
+      "SendNotificationRequest": {
+        "type": "object",
+        "required": [
+          "to"
+        ],
+        "properties": {
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Locale of the template; falls back to `en`."
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`transactional` (default) or `broadcast`: which providers may carry it."
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Literal subject, with `text`. Alternative to `template`."
+          },
+          "template": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name of a stored template. Alternative to `subject` + `text`."
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "Recipient address."
+          },
+          "variables": {
+            "type": "object",
+            "description": "Values for the template's `{{placeholders}}`.",
+            "additionalProperties": {},
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "SessionStatus": {
         "type": "string",
         "enum": [
@@ -4924,6 +8649,280 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "SetSubscriptionRequest": {
+        "type": "object",
+        "required": [
+          "subscribed"
+        ],
+        "properties": {
+          "subscribed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SubmissionResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "values",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "description": "`new` | `read` | `replied` | `spam` | `archived`."
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "values": {
+            "description": "The values by field name, as validated."
+          }
+        }
+      },
+      "SubmitFormRequest": {
+        "type": "object",
+        "required": [
+          "values"
+        ],
+        "properties": {
+          "honeypot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A hidden input real people leave empty. Anything in it marks the post as spam."
+          },
+          "started_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "When the form was shown, in epoch milliseconds. Optional."
+          },
+          "values": {
+            "type": "object",
+            "description": "One entry per field, by name.",
+            "additionalProperties": {},
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SubmitFormResponse": {
+        "type": "object",
+        "required": [
+          "received"
+        ],
+        "properties": {
+          "received": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SubscribeRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "consent_source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the address was collected, kept as the consent record."
+          },
+          "consent_version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Which privacy notice or wording the person agreed to."
+          },
+          "email": {
+            "type": "string"
+          },
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SubscribeResponse": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "SubscriberResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "status",
+          "consent_at"
+        ],
+        "properties": {
+          "confirmed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "consent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consent_source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "consent_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "`pending` | `subscribed` | `unsubscribed`."
+          },
+          "unsubscribed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "SubscriptionStatusResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "`subscribed` or `unsubscribed`."
+          }
+        }
+      },
+      "SuppressionRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`manual` (default), `bounce` or `complaint`."
+          }
+        }
+      },
+      "SuppressionResponse": {
+        "type": "object",
+        "required": [
+          "suppressed"
+        ],
+        "properties": {
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "suppressed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TemplateResponse": {
+        "type": "object",
+        "required": [
+          "kind",
+          "locale",
+          "subject",
+          "body_text",
+          "updated_at"
+        ],
+        "properties": {
+          "body_text": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -5017,6 +9016,16 @@
               "type": "string"
             }
           },
+          "registration_mode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RegistrationMode"
+              }
+            ]
+          },
           "require_email_verification": {
             "type": [
               "boolean",
@@ -5024,6 +9033,42 @@
             ]
           },
           "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UpdateListRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "double_opt_in": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`active` or `archived`. An archived list takes no new subscribers."
+          },
+          "unsubscribe_url": {
             "type": [
               "string",
               "null"
@@ -5039,6 +9084,18 @@
         "properties": {
           "role": {
             "$ref": "#/components/schemas/MembershipRole"
+          }
+        }
+      },
+      "UpdateSubmissionRequest": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "`new`, `read`, `replied`, `spam` or `archived`."
           }
         }
       },
@@ -5188,6 +9245,97 @@
           }
         }
       },
+      "WaitlistEntryResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "status",
+          "metadata",
+          "consent_at",
+          "created_at"
+        ],
+        "properties": {
+          "confirmed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "consent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consent_source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invited_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "locale": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metadata": {},
+          "status": {
+            "type": "string",
+            "description": "`pending` (unconfirmed) | `confirmed` | `invited` | `joined`."
+          }
+        }
+      },
+      "WaitlistStatsResponse": {
+        "type": "object",
+        "required": [
+          "pending",
+          "confirmed",
+          "invited",
+          "joined",
+          "total"
+        ],
+        "properties": {
+          "confirmed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "invited": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "joined": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pending": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "WebhookResponse": {
         "type": "object",
         "required": [
@@ -5285,6 +9433,26 @@
     {
       "name": "memberships",
       "description": "App membership roles (platform admin or app:user_manage)"
+    },
+    {
+      "name": "invitations",
+      "description": "Registration by invitation (platform admin, app_admin or invitations:write)"
+    },
+    {
+      "name": "notifications",
+      "description": "Outbound mail queue, delivery log and templates (platform admin, app_admin or notifications:send)"
+    },
+    {
+      "name": "waitlist",
+      "description": "Waiting list: public sign-up and confirmation, admin listing and release"
+    },
+    {
+      "name": "lists",
+      "description": "Opt-in mailing lists: public subscribe, confirm and unsubscribe; admin lists, subscribers and suppressions"
+    },
+    {
+      "name": "forms",
+      "description": "Contact forms: public definition and submission; admin definitions and inbox"
     },
     {
       "name": "apps",

@@ -145,6 +145,15 @@ export abstract class AuthSession {
     return this.runRefresh();
   }
 
+  /** Refresh after a 401, unless another request already rotated the token
+   *  since `usedAccessToken` was read: then the stored pair is the answer, and a
+   *  second refresh would burn the new refresh token for nothing. */
+  async refreshIfStale(usedAccessToken: string): Promise<TokenSet> {
+    const current = await this.storage.get();
+    if (current && current.accessToken !== usedAccessToken) return current;
+    return this.runRefresh();
+  }
+
   /** A valid access token, refreshing first if it is missing/near expiry.
    *  Throws {@link GatewardError} (401) when there is no session. */
   async getAccessToken(): Promise<string> {
@@ -178,7 +187,7 @@ export abstract class AuthSession {
       return await this.http.request<T>(method, path, { ...rest, bearer: token });
     } catch (err) {
       if (retryOn401 && err instanceof GatewardError && err.status === 401) {
-        const refreshed = await this.runRefresh();
+        const refreshed = await this.refreshIfStale(token);
         return this.http.request<T>(method, path, {
           ...rest,
           bearer: refreshed.accessToken,
