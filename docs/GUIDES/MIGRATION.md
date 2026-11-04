@@ -165,6 +165,49 @@ const claims = await gw.verifyToken(bearerToken, APP_ID);
 Opciones: verificar a mano con `PyJWT` + `PyJWKClient` contra
 `/.well-known/jwks.json` (ES256), o esperar al SDK de Python.
 
+## Backend Convex: confiar en los tokens de Gateward
+
+Quién hace qué: **la app** cambia su `convex/auth.config.ts`, remapea sus datos y
+exporta sus usuarios. **Gateward** solo importa usuarios y emite tokens; no toca la
+base de la app.
+
+```ts
+// convex/auth.config.ts
+export default {
+  providers: [
+    {
+      domain: process.env.GATEWARD_ISSUER, // JWT_ISSUER del Core, sin barra final
+      applicationID: process.env.GATEWARD_APP_ID, // el app_id de Gateward (claim aud)
+    },
+  ],
+};
+```
+
+- `domain` debe ser **igual** al `JWT_ISSUER` del Core que firma. Convex lee de ahí
+  el discovery y el JWKS ([OIDC_VERIFICATION](../../../gateward-core/docs/GUIDES/OIDC_VERIFICATION.md)).
+- Stg y prod son Cores distintos con llaves e issuer distintos. Un deployment de
+  Convex apunta a uno solo; el valor va en variables de entorno de Convex, no en el código.
+- `ctx.auth.getUserIdentity()` devuelve el `sub`, que es el UUID del usuario en
+  Gateward, **no** el id que la app usaba antes.
+
+**Datos existentes.** Todo registro que cuelgue del identificador anterior (campo
+`userId`, `tokenIdentifier`, tabla de usuarios propia) hay que remapearlo al `sub`
+nuevo. Gateward no lo hace. Al importar, manda el id anterior en `metadata`
+(`{"legacy_id": ...}`, queda en `local_metadata`) para poder cruzar viejo y nuevo.
+La respuesta del import no devuelve el `sub`; se lee después de la lista de
+usuarios de la app (cómo exportarla en lote: no verificado). El orden recomendado
+es: importar, leer los `sub`, migrar los datos de la app y recién entonces cambiar
+`auth.config.ts`.
+
+**Apps con un solo deployment que sirve de prod** (plan gratuito de Convex): no hay
+un "dev" aparte donde ensayar. Usa el Core de prod con una app `<nombre>-test`
+(`environment: "test"`, pool propio, `invite_only` con lista de correos) y migra la
+app real solo cuando el flujo completo funcione contra la de test.
+
+> **No verificado:** que Convex acepte el token de Gateward con `domain` y
+> `applicationID` de punta a punta. Tampoco se ha probado con dos proveedores
+> configurados a la vez. Valida con una app antes de dar esta guía por buena.
+
 ## Checklist
 
 - [ ] App aprovisionada, `app_id` a mano
@@ -176,7 +219,7 @@ Opciones: verificar a mano con `PyJWT` + `PyJWKClient` contra
 - [ ] Llamadas a tu API firmadas con `createFetch({ origins: [...] })`
 - [ ] Backend verificando el JWT con `verifyToken`
 - [ ] Rol de tu app leído de `metadata`, autorizado en el backend
-- [ ] Usuarios existentes migrados (ver abajo)
+- [ ] Usuarios existentes migrados (ver abajo) y datos remapeados al `sub` nuevo
 
 ## Migrar usuarios existentes
 
@@ -210,25 +253,24 @@ cambiar contraseñas — para eso está `forgotPassword()`.
 
 ## Ambientes de prueba
 
-No hay un Core de staging aparte, y no hace falta: el aislamiento se arma
-**dentro del mismo Core** con un identity pool propio y un app marcado
-`environment: "test"`. Los usuarios de QA quedan en otro pool y no tocan los
-reales.
+Hay un Core de stg y uno de prod, con bases y llaves separadas (ver
+[Qué Core usa cada ambiente](../../README.md#qué-core-usa-cada-ambiente)). Dentro de
+cada Core el aislamiento se arma con un identity pool propio y un app marcado
+`environment: "test"`: los usuarios de QA quedan en otro pool y no tocan los reales.
 
-Protegé el build con la guarda del SDK:
+Protege el build con la guarda del SDK:
 
 ```ts
 new GatewardAuth({ baseUrl, appId, expectEnvironment: "test" });
 ```
 
-En apps de test conviene `require_email_verification: false`: sin SMTP
-configurado el token de verificación solo queda en los logs del Core y no hay
-forma de completar el alta desde afuera.
+En apps de test conviene `require_email_verification: false`: sin SMTP configurado
+el token de verificación solo queda en los logs del Core y no hay forma de completar
+el alta desde afuera.
 
-La prueba que de verdad valida el aislamiento es la última del checklist del
-Core (`docs/GUIDES/INTEGRATION_TESTING.md`): **el usuario de QA tiene que dar
-401 contra el `app_id` de producción.** Corrémela antes de dar por buena una
-integración.
+La prueba que de verdad valida el aislamiento es la última del checklist del Core
+(`docs/GUIDES/INTEGRATION_TESTING.md`): **el usuario de QA tiene que dar 401 contra
+el `app_id` de producción.** Córrela antes de dar por buena una integración.
 
 ## Bloqueadores conocidos
 
