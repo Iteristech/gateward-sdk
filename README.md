@@ -397,7 +397,7 @@ Dos instancias del Core, con bases de datos separadas:
 | Ambiente | Core (`baseUrl`) | `environment` del app | `expectEnvironment` |
 |---|---|---|---|
 | Local, pruebas y staging | `https://stg-gateward-core.fondor.space` | `development`, `test` o `staging` | `["development", "test", "staging"]` |
-| Producción | UNKNOWN (DEPLOY-006) | `production` | `"production"` |
+| Producción | `https://gateward-api.iteris.tech` | `production` | `"production"` |
 
 Local no monta su propio Core: apunta al de stg, así todos prueban sobre los
 mismos registros. Producción nunca se mezcla con eso.
