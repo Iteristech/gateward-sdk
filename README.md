@@ -22,7 +22,14 @@ OpenAPI** (`GET /api-docs/openapi.json`), no a mano.
 ## Instalación
 
 Todavía **no está publicado en npm** (falta la org `gateward` y el `NPM_TOKEN`, DIST-001).
-Hoy se consume desde el repo clonado al lado, como hacen el dashboard y el demo:
+Cada tag `vX.Y.Z` crea un GitHub Release con el tarball ya compilado. Se instala desde la
+URL, sin clonar ni compilar:
+
+```bash
+pnpm add https://github.com/Iteristech/gateward-sdk/releases/download/v0.1.0/gateward-sdk-0.1.0.tgz
+```
+
+Para desarrollar el SDK junto a una app, el repo clonado al lado, como hacen el dashboard y el demo:
 
 ```bash
 git clone https://github.com/Iteristech/gateward-sdk ../gateward-sdk
@@ -30,7 +37,7 @@ pnpm -C ../gateward-sdk install && pnpm -C ../gateward-sdk build   # genera dist
 # en tu package.json: "@gateward/sdk": "file:../gateward-sdk"
 ```
 
-Cuando esté publicado será `pnpm add @gateward/sdk` y desaparece el requisito del clon.
+Cuando esté en npm será `pnpm add @gateward/sdk` y desaparece el requisito de la URL.
 
 MIT. Publicación y política SemVer en
 [`docs/GUIDES/RELEASING.md`](./docs/GUIDES/RELEASING.md); cambios en
@@ -43,7 +50,7 @@ MIT. Publicación y política SemVer en
 import { GatewardAuth, createWebStorage } from "@gateward/sdk";
 
 const auth = new GatewardAuth({
-  baseUrl: "https://gateward.fondor.space",
+  baseUrl: "https://gateward-api.iteris.tech",
   appId: "<APP_ID>", // enviado como X-Gateward-App-Id
   storage: createWebStorage(), // opcional; por defecto en memoria
 });
@@ -290,9 +297,9 @@ Cruzar a otra app del mismo ecosistema es **403**, en lectura y escritura.
 import { GatewardServer } from "@gateward/sdk/server";
 
 const gw = new GatewardServer({
-  baseUrl: "https://gateward.fondor.space",
+  baseUrl: "https://gateward-api.iteris.tech",
   apiKey: process.env.GATEWARD_API_KEY!, // scope events:write / events:read_app
-  issuer: "https://gateward.fondor.space",
+  issuer: "https://gateward-api.iteris.tech",
 });
 
 // sendEvent — el event_type debe estar namespaced (contener un ".").
