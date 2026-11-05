@@ -22,7 +22,14 @@ OpenAPI** (`GET /api-docs/openapi.json`), no a mano.
 ## Instalación
 
 Todavía **no está publicado en npm** (falta la org `gateward` y el `NPM_TOKEN`, DIST-001).
-Hoy se consume desde el repo clonado al lado, como hacen el dashboard y el demo:
+Cada tag `vX.Y.Z` crea un GitHub Release con el tarball ya compilado. Se instala desde la
+URL, sin clonar ni compilar (el tarball de `v0.1.0` existe cuando se publique ese tag):
+
+```bash
+pnpm add https://github.com/Iteristech/gateward-sdk/releases/download/v0.1.0/gateward-sdk-0.1.0.tgz
+```
+
+Para desarrollar el SDK junto a una app, el repo clonado al lado, como hacen el dashboard y el demo:
 
 ```bash
 git clone https://github.com/Iteristech/gateward-sdk ../gateward-sdk
@@ -30,7 +37,7 @@ pnpm -C ../gateward-sdk install && pnpm -C ../gateward-sdk build   # genera dist
 # en tu package.json: "@gateward/sdk": "file:../gateward-sdk"
 ```
 
-Cuando esté publicado será `pnpm add @gateward/sdk` y desaparece el requisito del clon.
+Cuando esté en npm será `pnpm add @gateward/sdk` y desaparece el requisito de la URL.
 
 MIT. Publicación y política SemVer en
 [`docs/GUIDES/RELEASING.md`](./docs/GUIDES/RELEASING.md); cambios en
