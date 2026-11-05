@@ -23,8 +23,8 @@ en Node 20 y 22 (runners Strongback `sbk-small`; los PRs de forks caen a `ubuntu
 El demo (`gateward-sdk-demo` #2) ejercita **toda** la superficie, incluida la guarda de
 environment, el cambio de email en dos pasos y el borrado de cuenta.
 
-Próximo paso: **publicar** (DIST-001, faltan la org de npm y el token) y que la app
-piloto lo aplique. Su feedback manda sobre el resto del backlog.
+Distribución: desde `v0.1.0` cada tag crea un GitHub Release con el tarball instalable por URL.
+Próximo paso: que la app piloto lo aplique y **publicar en npm** (DIST-001, faltan la org y el token). Su feedback manda sobre el resto del backlog.
 ---
 
 ## Priority 1 — Desbloquear la primera integración
@@ -32,9 +32,9 @@ piloto lo aplique. Su feedback manda sobre el resto del backlog.
 ### DIST-001: Distribución pública `added: 2026-08-03`
 - [ ] Crear la org `gateward` en npm y el secret `NPM_TOKEN`.
 - [ ] Primer `npm publish` — lo corre una persona, no CI (irreversible).
-- Verificado 2026-10-15: `npm view @gateward/sdk` responde 404 y el repo no tiene tags, así que sigue sin publicarse.
+- Verificado 2026-10-15: `npm view @gateward/sdk` responde 404. Desde `v0.1.0` el tarball se instala por URL del GitHub Release, sin npm.
 - Onboarding: no (irreversible, lo hace el equipo core).
-- Hecho cuando: `npm view @gateward/sdk` devuelve la versión y existe el tag `v0.1.0`.
+- Hecho cuando: `npm view @gateward/sdk` devuelve la versión.
 - Verificado 2026-10-15: `pnpm publish --dry-run --no-git-checks` pasa typecheck, tests y build, y el tarball solo trae `dist/`, README, LICENSE y CHANGELOG.
 - Lo ya hecho (paquete publicable, CHANGELOG, workflow por tag) está en `TASK_COMPLETED/2609.md`.
 
