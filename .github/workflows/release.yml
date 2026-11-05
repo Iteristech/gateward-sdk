@@ -17,8 +17,10 @@ jobs:
     # sbk-small: sin Docker. El provenance OIDC no depende del runner.
     runs-on: [self-hosted, sbk-small]
     timeout-minutes: 15
+    env:
+      # Un `if` no ve los secrets; este flag sí.
+      HAS_NPM: ${{ secrets.NPM_TOKEN != '' }}
     permissions:
-      # Crear el GitHub Release y subir el tarball.
       contents: write
       # Requerido para el provenance de npm (attestation firmada por OIDC).
       id-token: write
@@ -53,13 +55,14 @@ jobs:
       - name: Tarball y GitHub Release
         run: |
           pnpm pack
-          gh release create "$GITHUB_REF_NAME" gateward-sdk-*.tgz --title "$GITHUB_REF_NAME" --generate-notes
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" gateward-sdk-*.tgz --title "$GITHUB_REF_NAME" --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
 
       # Sin NPM_TOKEN (org de npm pendiente, DIST-001) solo sale el tarball.
       - name: Publicar en npm
-        if: env.NODE_AUTH_TOKEN != ''
+        if: env.HAS_NPM == 'true'
         run: pnpm publish --no-git-checks --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
