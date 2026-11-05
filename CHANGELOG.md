@@ -9,7 +9,11 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
 
 ## [Unreleased]
 
-### Added
+## [0.1.0] — 2026-11-05
+
+Primera superficie completa de cliente/integrador.
+
+### Añadido
 
 - **Hooks de React** `useWaitlist`, `useSubscription`, `useSubscriptions` y `useForm` en
   `@gateward/sdk/react`: estado de la petición y errores por campo, sin JSX.
@@ -18,18 +22,13 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
   `GatewardError.fieldErrors`, y en `GatewardServer` invitaciones, lista de espera,
   notificaciones, plantillas, listas, supresiones y formularios. Requiere un Core con
   ACCESS-001, WAITLIST-001, LIST-001, FORMS-001 y NOTIF-001.
-- **Distribución pública** — el paquete deja de ser `private`, se publica como
-  `@gateward/sdk` en npm bajo MIT, con provenance desde CI por tag.
+- **Distribución pública** — el paquete deja de ser `private` (MIT). Cada tag crea un GitHub
+  Release con el tarball instalable; npm queda para cuando exista la org (DIST-001).
 - Este CHANGELOG y la política de releases.
 
-### Fixed
+### Corregido
 
 - Un segundo 401 que llega cuando otra petición ya rotó el token reintenta con el token guardado en vez de lanzar otro `POST /v1/auth/refresh` (nuevo `refreshIfStale` en la sesión; `createFetch` y `authedRequest` lo usan).
-
-## [0.1.0] — sin publicar
-
-Primera superficie completa de cliente/integrador. Todo lo de abajo ya está en
-`main`; se numera 0.1.0 al publicar.
 
 ### Auth de usuario
 
