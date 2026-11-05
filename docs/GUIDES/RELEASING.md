@@ -25,6 +25,11 @@ asumía `id`/`role`.
 Antes de 1.0.0 (`0.x`), un `minor` puede romper. Al llegar a 1.0.0 aplica SemVer
 estricto.
 
+## Sin npm todavía
+
+El workflow crea el GitHub Release con el `.tgz` y salta la publicación en npm si no hay
+`NPM_TOKEN`. Instalación por URL: [README](../../README.md#instalación).
+
 ## Primer release
 
 Una sola vez, antes del primer tag:

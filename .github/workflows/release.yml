@@ -1,7 +1,8 @@
 name: release
 
-# Publica al pushear un tag `vX.Y.Z`. La versión del tag debe coincidir con la
-# de package.json — el job falla si no, antes de tocar npm.
+# Al pushear un tag `vX.Y.Z`: crea el GitHub Release con el tarball instalable
+# y, si hay NPM_TOKEN, publica en npm. La versión del tag debe coincidir con la
+# de package.json — el job falla si no, antes de publicar nada.
 on:
   push:
     tags: ["v*.*.*"]
@@ -16,8 +17,11 @@ jobs:
     # sbk-small: sin Docker. El provenance OIDC no depende del runner.
     runs-on: [self-hosted, sbk-small]
     timeout-minutes: 15
+    env:
+      # Un `if` no ve los secrets; este flag sí.
+      HAS_NPM: ${{ secrets.NPM_TOKEN != '' }}
     permissions:
-      contents: read
+      contents: write
       # Requerido para el provenance de npm (attestation firmada por OIDC).
       id-token: write
     steps:
@@ -48,6 +52,27 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
-      - run: pnpm publish --no-git-checks --provenance --access public
+      # El runner no trae `gh`: API de GitHub con curl y Node. Idempotente si el release ya existe.
+      - name: Tarball y GitHub Release
+        run: |
+          pnpm pack
+          API="https://api.github.com/repos/$GITHUB_REPOSITORY"
+          AUTH="Authorization: Bearer $GH_TOKEN"
+          json() { node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d)[process.argv[1]]??''))" "$1"; }
+          ID="$(curl -sS -H "$AUTH" "$API/releases/tags/$GITHUB_REF_NAME" | json id)"
+          if [ -z "$ID" ]; then
+            ID="$(curl -fsS -X POST -H "$AUTH" "$API/releases" \
+              -d "{\"tag_name\":\"$GITHUB_REF_NAME\",\"name\":\"$GITHUB_REF_NAME\",\"generate_release_notes\":true}" | json id)"
+          fi
+          FILE="$(ls gateward-sdk-*.tgz)"
+          curl -fsS -X POST -H "$AUTH" -H "Content-Type: application/gzip" --data-binary "@$FILE" \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$ID/assets?name=$FILE" >/dev/null
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # Sin NPM_TOKEN (org de npm pendiente, DIST-001) solo sale el tarball.
+      - name: Publicar en npm
+        if: env.HAS_NPM == 'true'
+        run: pnpm publish --no-git-checks --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
