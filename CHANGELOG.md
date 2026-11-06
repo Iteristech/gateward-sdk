@@ -9,6 +9,12 @@ que el SDK expone es `minor`; cambiar la firma de un método existente es
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-11-05
+
+- `GatewardServer`: `getWaitlistEntry`, `confirmWaitlistEntry` y `exportWaitlist` (CSV), y
+  `updatedSince` en `listWaitlist`, para entregar la lista de espera a un servicio de correo
+  externo (Core `WAITLIST-INT-001`). `WaitlistEntry` suma `updated_at`; contrato regenerado.
+
 ## [0.1.0] — 2026-11-05
 
 Primera superficie completa de cliente/integrador.

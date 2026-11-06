@@ -692,6 +692,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/apps/{app_id}/waitlist/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["export_waitlist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/apps/{app_id}/waitlist/release": {
         parameters: {
             query?: never;
@@ -731,10 +747,26 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["get_waitlist_entry"];
         put?: never;
         post?: never;
         delete: operations["delete_waitlist_entry"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apps/{app_id}/waitlist/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirm_waitlist_entry"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1548,6 +1580,8 @@ export interface components {
             registration_mode: components["schemas"]["RegistrationMode"];
             require_email_verification: boolean;
             status: string;
+            /** @description `false` when another service mails the confirmation and confirms through the admin API. */
+            waitlist_confirm_email: boolean;
         };
         BroadcastRequest: {
             locale?: string | null;
@@ -1671,6 +1705,8 @@ export interface components {
              *     Omitted means `true` — the historical behaviour.
              */
             require_email_verification?: boolean | null;
+            /** @description WAITLIST-INT-001. Omitted means `true`: Gateward mails the confirmation code. */
+            waitlist_confirm_email?: boolean | null;
         };
         CreateEcosystemRequest: {
             name: string;
@@ -2509,6 +2545,7 @@ export interface components {
             registration_mode?: null | components["schemas"]["RegistrationMode"];
             require_email_verification?: boolean | null;
             status?: string | null;
+            waitlist_confirm_email?: boolean | null;
         };
         UpdateListRequest: {
             description?: string | null;
@@ -2589,6 +2626,11 @@ export interface components {
             metadata: unknown;
             /** @description `pending` (unconfirmed) | `confirmed` | `invited` | `joined`. */
             status: string;
+            /**
+             * Format: date-time
+             * @description Moves on every status change: read it to sync "what changed since".
+             */
+            updated_at: string;
         };
         WaitlistStatsResponse: {
             /** Format: int64 */
@@ -5013,6 +5055,11 @@ export interface operations {
                 /** @description 1 to 500, default 100. */
                 limit?: number | null;
                 offset?: number | null;
+                /**
+                 * @description Only entries changed at or after this instant, oldest change first (inclusive:
+                 *     dedupe by `id` and `updated_at`). Without it the order is arrival.
+                 */
+                updated_since?: string | null;
             };
             header?: never;
             path: {
@@ -5033,6 +5080,46 @@ export interface operations {
                 };
             };
             /** @description Unknown status filter or page out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    export_waitlist: {
+        parameters: {
+            query?: {
+                /** @description Only this status: `pending`, `confirmed`, `invited` or `joined`. */
+                status?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV in arrival order, at most 100000 rows, without the free-form metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Unknown status filter */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -5126,6 +5213,45 @@ export interface operations {
             };
         };
     };
+    get_waitlist_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Entry ID, as carried by the waitlist events */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The entry */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistEntryResponse"];
+                };
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such entry in this app */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     delete_waitlist_entry: {
         parameters: {
             query?: never;
@@ -5156,6 +5282,52 @@ export interface operations {
             };
             /** @description No such entry in this app */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    confirm_waitlist_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App ID */
+                app_id: string;
+                /** @description Entry ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entry confirmed (repeating it is harmless) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistEntryResponse"];
+                };
+            };
+            /** @description Not platform admin, and no waitlist:manage on this app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No such entry in this app */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The entry was already invited or has joined */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -11,8 +11,11 @@ import {
   type MemberPage,
 } from "./core/members.js";
 import {
+  confirmWaitlistEntry,
   createInvitations,
   deleteWaitlistEntry,
+  exportWaitlist,
+  getWaitlistEntry,
   listInvitations,
   listWaitlist,
   releaseWaitlist,
@@ -23,6 +26,7 @@ import {
   type InvitationInput,
   type ListWaitlistQuery,
   type ReleaseWaitlistInput,
+  type WaitlistStatus,
 } from "./core/access.js";
 import {
   deleteForm,
@@ -245,6 +249,22 @@ export class GatewardServer {
     return waitlistStats(this.http, { apiKey: this.apiKey }, appId);
   }
 
+  /** One entry, by the `entry_id` a waitlist event carries. */
+  getWaitlistEntry(appId: string, id: string): Promise<WaitlistEntry> {
+    return getWaitlistEntry(this.http, { apiKey: this.apiKey }, appId, id);
+  }
+
+  /** For apps whose mail is sent elsewhere (`waitlist_confirm_email` off): the
+   *  mail service confirms the entry once its own opt-in is done. */
+  confirmWaitlistEntry(appId: string, id: string): Promise<WaitlistEntry> {
+    return confirmWaitlistEntry(this.http, { apiKey: this.apiKey }, appId, id);
+  }
+
+  /** The list as CSV text, optionally one status only. */
+  exportWaitlist(appId: string, status?: WaitlistStatus): Promise<string> {
+    return exportWaitlist(this.http, { apiKey: this.apiKey }, appId, status);
+  }
+
   /** Turn waiting-list entries into invitations, by count (arrival order) or
    *  by id. Registering with one marks the entry `joined`. */
   releaseWaitlist(appId: string, input: ReleaseWaitlistInput): Promise<ReleasedEntry[]> {
@@ -410,6 +430,7 @@ export type {
   InvitationInput,
   ListWaitlistQuery,
   ReleaseWaitlistInput,
+  WaitlistStatus,
 } from "./core/access.js";
 export type { PutFormInput, SubmissionStatus } from "./core/forms.js";
 export type {

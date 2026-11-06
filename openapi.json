@@ -3389,6 +3389,19 @@
               ],
               "format": "int64"
             }
+          },
+          {
+            "name": "updated_since",
+            "in": "query",
+            "description": "Only entries changed at or after this instant, oldest change first (inclusive:\ndedupe by `id` and `updated_at`). Without it the order is arrival.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            }
           }
         ],
         "responses": {
@@ -3407,6 +3420,64 @@
           },
           "400": {
             "description": "Unknown status filter or page out of range"
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist/export": {
+      "get": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "export_waitlist",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only this status: `pending`, `confirmed`, `invited` or `joined`.",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV in arrival order, at most 100000 rows, without the free-form metadata",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown status filter"
           },
           "403": {
             "description": "Not platform admin, and no waitlist:manage on this app"
@@ -3525,6 +3596,60 @@
       }
     },
     "/v1/apps/{app_id}/waitlist/{id}": {
+      "get": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "get_waitlist_entry",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Entry ID, as carried by the waitlist events",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The entry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistEntryResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          },
+          "404": {
+            "description": "No such entry in this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      },
       "delete": {
         "tags": [
           "waitlist"
@@ -3561,6 +3686,65 @@
           },
           "404": {
             "description": "No such entry in this app"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/v1/apps/{app_id}/waitlist/{id}/confirm": {
+      "post": {
+        "tags": [
+          "waitlist"
+        ],
+        "operationId": "confirm_waitlist_entry",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "App ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Entry ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entry confirmed (repeating it is harmless)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistEntryResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not platform admin, and no waitlist:manage on this app"
+          },
+          "404": {
+            "description": "No such entry in this app"
+          },
+          "409": {
+            "description": "The entry was already invited or has joined"
           }
         },
         "security": [
@@ -6035,7 +6219,8 @@
           "redirect_urls",
           "password_policy",
           "require_email_verification",
-          "registration_mode"
+          "registration_mode",
+          "waitlist_confirm_email"
         ],
         "properties": {
           "allowed_origins": {
@@ -6082,6 +6267,10 @@
           },
           "status": {
             "type": "string"
+          },
+          "waitlist_confirm_email": {
+            "type": "boolean",
+            "description": "`false` when another service mails the confirmation and confirms through the admin API."
           }
         }
       },
@@ -6445,6 +6634,13 @@
               "null"
             ],
             "description": "Whether registration leaves the account unverified and email-gated.\nOmitted means `true` — the historical behaviour."
+          },
+          "waitlist_confirm_email": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "WAITLIST-INT-001. Omitted means `true`: Gateward mails the confirmation code."
           }
         }
       },
@@ -9037,6 +9233,12 @@
               "string",
               "null"
             ]
+          },
+          "waitlist_confirm_email": {
+            "type": [
+              "boolean",
+              "null"
+            ]
           }
         }
       },
@@ -9253,7 +9455,8 @@
           "status",
           "metadata",
           "consent_at",
-          "created_at"
+          "created_at",
+          "updated_at"
         ],
         "properties": {
           "confirmed_at": {
@@ -9301,6 +9504,11 @@
           "status": {
             "type": "string",
             "description": "`pending` (unconfirmed) | `confirmed` | `invited` | `joined`."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Moves on every status change: read it to sync \"what changed since\"."
           }
         }
       },
