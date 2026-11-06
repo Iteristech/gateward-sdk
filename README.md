@@ -571,7 +571,7 @@ a la que se mostró el formulario.
 | Scope | Métodos |
 |---|---|
 | `invitations:write` | `createInvitations`, `listInvitations`, `revokeInvitation`, `resendInvitation` |
-| `waitlist:manage` | `listWaitlist`, `waitlistStats`, `releaseWaitlist`, `deleteWaitlistEntry` |
+| `waitlist:manage` | `listWaitlist`, `waitlistStats`, `getWaitlistEntry`, `confirmWaitlistEntry`, `exportWaitlist`, `releaseWaitlist`, `deleteWaitlistEntry` |
 | `notifications:send` | `sendNotification`, `listNotifications`, `getNotification`, `listTemplates`, `putTemplate`, `deleteTemplate`, `broadcast` |
 | `lists:manage` | `listMailingLists`, `createMailingList`, `updateMailingList`, `deleteMailingList`, `listSubscribers`, `deleteSubscriber`, `checkSuppression`, `addSuppression`, `removeSuppression` |
 | `forms:manage` | `listForms`, `getFormDefinition`, `putForm`, `deleteForm`, `listSubmissions`, `getSubmission`, `updateSubmission`, `deleteSubmission` |
@@ -581,6 +581,12 @@ const gw = new GatewardServer({ baseUrl, apiKey });
 
 await gw.createInvitations(appId, [{ email: "ana@app.com", role: "app_admin" }]);
 await gw.releaseWaitlist(appId, { count: 50 }); // por orden de llegada; crea invitaciones
+
+// Lista de espera con el correo en otro servicio (app con `waitlist_confirm_email` en false):
+const changed = await gw.listWaitlist(appId, { updatedSince: lastSync }); // inclusivo: deduplica por id y updated_at
+const entry = await gw.getWaitlistEntry(appId, entryIdFromWebhook);       // los eventos traen entry_id, no el correo
+await gw.confirmWaitlistEntry(appId, entry.id);                          // tras el opt-in del otro servicio
+const csv = await gw.exportWaitlist(appId, "confirmed");                 // texto CSV
 
 const { id } = await gw.sendNotification(appId, { to, template: "reporte_listo", variables: { name } });
 const sent = await gw.getNotification(appId, id); // pending | sent | failed
