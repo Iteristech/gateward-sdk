@@ -165,6 +165,30 @@ describe("GatewardServer access and messaging", () => {
     expect(calls[0]!.body).toEqual({ count: 5, include_unconfirmed: true });
   });
 
+  it("syncs the waiting list: changes since, one entry, confirm and CSV export", async () => {
+    const entry = { id: "e1", email: "a@b.co", status: "confirmed", updated_at: "2026-11-05T10:00:00Z" };
+    const { gw, calls } = server([
+      { json: [entry] },
+      { json: entry },
+      { json: entry },
+      { status: 200, text: "id,email\r\ne1,a@b.co\r\n" },
+    ]);
+    const since = new Date("2026-11-05T09:00:00Z");
+    await gw.listWaitlist(APP, { status: "confirmed", updatedSince: since });
+    await gw.getWaitlistEntry(APP, "e1");
+    const confirmed = await gw.confirmWaitlistEntry(APP, "e1");
+    const csv = await gw.exportWaitlist(APP, "pending");
+    expect(calls[0]!.url).toBe(
+      `${BASE}/v1/apps/${APP}/waitlist?status=confirmed&updated_since=2026-11-05T09%3A00%3A00.000Z`,
+    );
+    expect(calls[1]!.url).toBe(`${BASE}/v1/apps/${APP}/waitlist/e1`);
+    expect(calls[2]!).toMatchObject({ method: "POST", url: `${BASE}/v1/apps/${APP}/waitlist/e1/confirm` });
+    expect(confirmed.updated_at).toBe("2026-11-05T10:00:00Z");
+    expect(calls[3]!.url).toBe(`${BASE}/v1/apps/${APP}/waitlist/export?status=pending`);
+    expect(csv.startsWith("id,email")).toBe(true);
+    expect(calls.every((c) => c.headers["x-api-key"] === KEY)).toBe(true);
+  });
+
   it("queues a notification, stores a template and broadcasts to a list", async () => {
     const { gw, calls } = server([
       { status: 202, json: { id: "n1", status: "pending" } },

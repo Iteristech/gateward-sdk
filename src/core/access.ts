@@ -121,10 +121,16 @@ export function resendInvitation(
   );
 }
 
+export type WaitlistStatus = "pending" | "confirmed" | "invited" | "joined";
+
 export interface ListWaitlistQuery {
-  status?: "pending" | "confirmed" | "invited" | "joined";
+  status?: WaitlistStatus;
   limit?: number;
   offset?: number;
+  /** Only entries changed at or after this instant, oldest change first.
+   *  Inclusive: dedupe by `id` and `updated_at`. Deletions never show up
+   *  here; the `waitlist_entry_deleted` event reports them. */
+  updatedSince?: Date | string;
 }
 
 export function listWaitlist(
@@ -135,7 +141,49 @@ export function listWaitlist(
 ): Promise<WaitlistEntry[]> {
   return http.request<WaitlistEntry[]>("GET", `/v1/apps/${appId}/waitlist`, {
     ...auth,
-    query: { status: query.status, limit: query.limit, offset: query.offset },
+    query: {
+      status: query.status,
+      limit: query.limit,
+      offset: query.offset,
+      updated_since:
+        query.updatedSince instanceof Date ? query.updatedSince.toISOString() : query.updatedSince,
+    },
+  });
+}
+
+/** One entry, as named by the `entry_id` of the waitlist events. */
+export function getWaitlistEntry(
+  http: HttpClient,
+  auth: RequestOptions,
+  appId: string,
+  id: string,
+): Promise<WaitlistEntry> {
+  return http.request<WaitlistEntry>("GET", `/v1/apps/${appId}/waitlist/${id}`, auth);
+}
+
+/** Confirms an entry on behalf of a mail service that ran its own opt-in
+ *  (apps with `waitlist_confirm_email` off). Repeating it is harmless; an
+ *  entry already invited or joined answers 409. */
+export function confirmWaitlistEntry(
+  http: HttpClient,
+  auth: RequestOptions,
+  appId: string,
+  id: string,
+): Promise<WaitlistEntry> {
+  return http.request<WaitlistEntry>("POST", `/v1/apps/${appId}/waitlist/${id}/confirm`, auth);
+}
+
+/** The whole list as CSV text, in arrival order (up to 100000 rows, without
+ *  the free-form metadata). */
+export function exportWaitlist(
+  http: HttpClient,
+  auth: RequestOptions,
+  appId: string,
+  status?: WaitlistStatus,
+): Promise<string> {
+  return http.request<string>("GET", `/v1/apps/${appId}/waitlist/export`, {
+    ...auth,
+    query: { status },
   });
 }
 
