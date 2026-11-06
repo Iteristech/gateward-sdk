@@ -1,6 +1,6 @@
 {
   "name": "@gateward/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Client/integrator SDK for Gateward — end-user auth (browser) + backend token verification & events. Admin/control-plane lives in the dashboard.",
   "type": "module",
   "license": "MIT",
